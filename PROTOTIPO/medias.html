@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Médias - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        .gpa-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 16px rgba(9, 132, 227, 0.3);
+        }
+
+        .gpa-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .gpa-label {
+            font-size: 1rem;
+            opacity: 0.95;
+            margin-bottom: 1.5rem;
+        }
+
+        .gpa-status {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .grades-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+        }
+
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .grades-table thead {
+            background-color: #f5f6fa;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .grades-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .grades-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .grades-table tbody tr:hover {
+            background-color: #f5f6fa;
+        }
+
+        .discipline-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.4rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .grade-a {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--success);
+        }
+
+        .grade-b {
+            background: rgba(253, 203, 110, 0.1);
+            color: #f39c12;
+        }
+
+        .grade-c {
+            background: rgba(9, 132, 227, 0.1);
+            color: var(--primary);
+        }
+
+        .grade-d {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+        }
+
+        .grade-f {
+            background: rgba(214, 48, 49, 0.1);
+            color: var(--danger);
+        }
+
+        .grade-progress {
+            flex: 1;
+            background: #f5f6fa;
+            border-radius: 0.4rem;
+            height: 8px;
+            overflow: hidden;
+            margin-right: 1rem;
+        }
+
+        .grade-progress-fill {
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card-grade {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .stat-card-grade .value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-grade .label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .grade-distribution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .distribution-item {
+            text-align: center;
+        }
+
+        .distribution-count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .distribution-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grades-table {
+                font-size: 0.9rem;
+            }
+
+            .grades-table th,
+            .grades-table td {
+                padding: 0.75rem;
+            }
+
+            .gpa-value {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html" class="active">🎓 Minhas Médias</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Utilizador</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1>🎓 Minhas Médias</h1>
+                        <p>Acompanhe suas notas e desempenho académico</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GPA CARD -->
+            <div class="gpa-card">
+                <div class="gpa-value" id="gpaValue">16.3</div>
+                <div class="gpa-label">Média Geral Atual (Escala 0-20)</div>
+                <div class="gpa-status">
+                    Status: <strong>Bom Desempenho ⭐</strong>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-grid">
+                <div class="stat-card-grade">
+                    <span class="value">18</span>
+                    <span class="label">Nota Máxima</span>
+                </div>
+                <div class="stat-card-grade">
+                    <span class="value">14</span>
+                    <span class="label">Nota Mínima</span>
+                </div>
+                <div class="stat-card-grade">
+                    <span class="value">6</span>
+                    <span class="label">Disciplinas</span>
+                </div>
+                <div class="stat-card-grade">
+                    <span class="value">100%</span>
+                    <span class="label">Avaliações</span>
+                </div>
+            </div>
+
+            <!-- GRADES BY DISCIPLINE -->
+            <div class="grades-section">
+                <div class="section-title">📚 Notas por Disciplina</div>
+                <table class="grades-table">
+                    <thead>
+                        <tr>
+                            <th>Disciplina</th>
+                            <th>Avaliação 1</th>
+                            <th>Avaliação 2</th>
+                            <th>Avaliação 3</th>
+                            <th>Média</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gradesTableBody">
+                        <!-- Carregado via JavaScript -->
+                    </tbody>
+                </table>
+
+                <div class="grade-distribution">
+                    <div class="distribution-item">
+                        <span class="distribution-count">3</span>
+                        <span class="distribution-label">Notas A (18-20)</span>
+                    </div>
+                    <div class="distribution-item">
+                        <span class="distribution-count">2</span>
+                        <span class="distribution-label">Notas B (16-17)</span>
+                    </div>
+                    <div class="distribution-item">
+                        <span class="distribution-count">1</span>
+                        <span class="distribution-label">Notas C (14-15)</span>
+                    </div>
+                    <div class="distribution-item">
+                        <span class="distribution-count">0</span>
+                        <span class="distribution-label">Notas D (<14)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERFORMANCE TREND -->
+            <div class="grades-section">
+                <div class="section-title">📈 Evolução do Desempenho</div>
+                
+                <div style="margin-top: 1.5rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text);">Semestre 1</div>
+                        <div class="grade-progress">
+                            <div class="grade-progress-fill" style="width: 72%; background: var(--danger);"></div>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem;">Média: 14.4 / 20</div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text);">Semestre 2</div>
+                        <div class="grade-progress">
+                            <div class="grade-progress-fill" style="width: 81%; background: #f39c12;"></div>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem;">Média: 16.2 / 20</div>
+                    </div>
+
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text);">Semestre 3 (Atual)</div>
+                        <div class="grade-progress">
+                            <div class="grade-progress-fill" style="width: 82%; background: var(--primary);"></div>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-light); margin-top: 0.25rem;">Média: 16.3 / 20</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); background: #f5f6fa; padding: 1rem; border-radius: 0.5rem; color: var(--text-light); font-size: 0.9rem;">
+                    📊 <strong>Análise:</strong> Seu desempenho melhorou consistentemente ao longo dos semestres, demonstrando crescimento académico progressivo. Continue mantendo esse nível de dedição!
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Verificar autenticação
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        // Carregar dados do utilizador
+        const storedUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+        const userName = localStorage.getItem('studentName') || storedUser.nome || 'Utilizador';
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userInitial').textContent = userName.charAt(0).toUpperCase();
+
+        // Dados de notas
+        const grades = [
+            { discipline: 'Programação', eval1: 18, eval2: 17, eval3: 19, average: 18.0 },
+            { discipline: 'Base de Dados', eval1: 16, eval2: 17, eval3: 15, average: 16.0 },
+            { discipline: 'Matemática', eval1: 14, eval2: 15, eval3: 14, average: 14.3 },
+            { discipline: 'Redes', eval1: 17, eval2: 18, eval3: 19, average: 18.0 },
+            { discipline: 'Eng. Software', eval1: 15, eval2: 16, eval3: 17, average: 16.0 },
+            { discipline: 'Estrutura de Dados', eval1: 17, eval2: 18, eval3: 16, average: 17.0 },
+        ];
+
+        function getGradeBadge(grade) {
+            if (grade >= 18) return 'grade-a';
+            if (grade >= 16) return 'grade-b';
+            if (grade >= 14) return 'grade-c';
+            if (grade >= 12) return 'grade-d';
+            return 'grade-f';
+        }
+
+        function getGradeLabel(grade) {
+            if (grade >= 18) return 'A';
+            if (grade >= 16) return 'B';
+            if (grade >= 14) return 'C';
+            if (grade >= 12) return 'D';
+            return 'F';
+        }
+
+        // Renderizar tabela de notas
+        const tbody = document.getElementById('gradesTableBody');
+        tbody.innerHTML = grades.map(g => `
+            <tr>
+                <td>
+                    <span class="discipline-name">${g.discipline}</span>
+                </td>
+                <td>
+                    <span class="grade-badge grade-${getGradeBadge(g.eval1).split('-')[1]}">${g.eval1}</span>
+                </td>
+                <td>
+                    <span class="grade-badge grade-${getGradeBadge(g.eval2).split('-')[1]}">${g.eval2}</span>
+                </td>
+                <td>
+                    <span class="grade-badge grade-${getGradeBadge(g.eval3).split('-')[1]}">${g.eval3}</span>
+                </td>
+                <td>
+                    <strong class="grade-badge ${getGradeBadge(g.average)}">${g.average.toFixed(1)}</strong>
+                </td>
+            </tr>
+        `).join('');
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="mobile-menu.js"></script>
+</body>
+</html>

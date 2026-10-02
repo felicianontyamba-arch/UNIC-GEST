@@ -1,0 +1,690 @@
+' ============================================================
+' SISTEMA "O TEMPO" - UNIC
+' RESUMO GERAL DE ENGENHARIA DE SOFTWARE
+' ============================================================
+
+
+' ============================================================
+' 1. DIAGRAMA DE CASOS DE USO
+' ============================================================
+
+@startuml O_Tempo_Casos_Uso
+
+title Sistema "O Tempo" - UNIC
+title Diagrama de Casos de Uso
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+actor "Estudante UNIC" as Student
+actor "Administrador" as Admin
+
+rectangle "Sistema O Tempo" {
+
+    package "Módulo de Autenticação" {
+
+        usecase "UC01: Efetuar Login (JWT)" as UC01
+
+        usecase "UC02: Alterar Própria Senha" as UC02
+
+        usecase "UC03: Alterar Senha de Outro Utilizador" as UC03
+    }
+
+
+    package "Módulo do Estudante" {
+
+        usecase "UC04: Consultar Dashboard\ne Estatísticas" as UC04
+
+        usecase "UC05: Criar / Editar /\nConcluir Tarefas" as UC05
+
+        usecase "UC06: Visualizar\nCalendário Académico" as UC06
+
+        usecase "UC07: Consultar\nLembretes e Alertas" as UC07
+    }
+
+
+    package "Módulo de Administração" {
+
+        usecase "UC08: Listar / Gerir\nEstudantes" as UC08
+
+        usecase "UC09: Exportar Relatórios\n(CSV / Excel / PDF)" as UC09
+    }
+}
+
+
+' Estudante
+Student --> UC01
+Student --> UC02
+Student --> UC04
+Student --> UC05
+Student --> UC06
+Student --> UC07
+
+
+' Administrador
+Admin --> UC01
+Admin --> UC02
+Admin --> UC03
+Admin --> UC08
+Admin --> UC09
+
+@enduml
+
+
+
+' ============================================================
+' 2. ARQUITETURA DO SISTEMA
+' ============================================================
+
+@startuml O_Tempo_Arquitetura
+
+title Sistema "O Tempo" - UNIC
+title Arquitetura da Aplicação
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+
+' ============================================================
+' FRONTEND
+' ============================================================
+
+node "Cliente / Navegador Web" {
+
+    [Página de Login\nlogin.html] as FE_Login
+
+    [Dashboard do Estudante\nINDEX.html] as FE_Dashboard
+
+    [Painel de Administração\nadmin.html] as FE_Admin
+}
+
+
+' ============================================================
+' BACKEND
+' ============================================================
+
+node "Servidor Backend\nNode.js / Express\nPorta 5000" {
+
+    [Controlador de Autenticação\n/api/auth] as API_Auth
+
+    [Middleware de Autenticação\nJWT] as JWT
+
+    [Controlador de Tarefas\n/api/tasks] as API_Tasks
+
+    [Controlador de Estudantes\n/api/students] as API_Students
+
+    [Controlador de Notificações\n/api/notifications] as API_Notifications
+
+    [Controlador de Calendário\n/api/calendar] as API_Calendar
+
+    [Módulo de Exportação\nCSV / Excel / PDF] as API_Export
+}
+
+
+' ============================================================
+' BASE DE DADOS
+' ============================================================
+
+database "MySQL\notempo_db" {
+
+    [admins] as DB_Admins
+
+    [students] as DB_Students
+
+    [tasks] as DB_Tasks
+
+    [notifications] as DB_Notifications
+
+    [academic_calendar] as DB_Calendar
+}
+
+
+' ============================================================
+' FRONTEND -> BACKEND
+' ============================================================
+
+FE_Login --> API_Auth :
+POST /api/auth/login
+
+FE_Dashboard --> JWT :
+Authorization: Bearer JWT
+
+FE_Admin --> JWT :
+Authorization: Bearer JWT
+
+
+' ============================================================
+' MIDDLEWARE -> APIs
+' ============================================================
+
+JWT --> API_Tasks :
+Token válido
+
+JWT --> API_Students :
+Token válido
+
+JWT --> API_Notifications :
+Token válido
+
+JWT --> API_Calendar :
+Token válido
+
+JWT --> API_Export :
+Token + permissões
+
+
+' ============================================================
+' APIs -> BASE DE DADOS
+' ============================================================
+
+API_Auth --> DB_Admins :
+SQL / bcrypt
+
+API_Auth --> DB_Students :
+SQL / bcrypt
+
+API_Tasks --> DB_Tasks :
+CRUD
+
+API_Students --> DB_Students :
+CRUD
+
+API_Notifications --> DB_Notifications :
+SELECT / UPDATE
+
+API_Calendar --> DB_Calendar :
+SELECT
+
+
+' ============================================================
+' EXPORTAÇÃO
+' ============================================================
+
+API_Students --> API_Export :
+Dados dos estudantes
+
+API_Tasks --> API_Export :
+Dados das tarefas
+
+API_Notifications --> API_Export :
+Dados das notificações
+
+API_Export --> DB_Students :
+Consulta
+
+API_Export --> DB_Tasks :
+Consulta
+
+@enduml
+
+
+
+' ============================================================
+' 3. DIAGRAMA DE ENTIDADE-RELACIONAMENTO
+' ============================================================
+
+@startuml O_Tempo_DER
+
+title Sistema "O Tempo" - UNIC
+title Diagrama de Entidade-Relacionamento
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+
+' ============================================================
+' ADMINISTRADORES
+' ============================================================
+
+entity "admins" as ADM {
+
+    * id : INT <<PK>>
+    --
+    * email : VARCHAR(100) <<UK>>
+    * password : VARCHAR(255) <<Bcrypt>>
+    * role : VARCHAR(20)
+    created_at : DATETIME
+}
+
+
+' ============================================================
+' ESTUDANTES
+' ============================================================
+
+entity "students" as STU {
+
+    * id : INT <<PK>>
+    --
+    * nome : VARCHAR(100)
+    * email : VARCHAR(100) <<UK>>
+    * password : VARCHAR(255) <<Bcrypt>>
+    * curso : VARCHAR(100)
+    * role : VARCHAR(20)
+    created_at : DATETIME
+}
+
+
+' ============================================================
+' TAREFAS
+' ============================================================
+
+entity "tasks" as TASK {
+
+    * id : INT <<PK>>
+    --
+    * student_id : INT <<FK>>
+    * titulo : VARCHAR(150)
+    descricao : TEXT
+    disciplina : VARCHAR(100)
+    data_entrega : DATETIME
+    prioridade : VARCHAR(20)
+    estado : VARCHAR(20)
+    created_at : DATETIME
+}
+
+
+' ============================================================
+' NOTIFICAÇÕES
+' ============================================================
+
+entity "notifications" as NOTIF {
+
+    * id : INT <<PK>>
+    --
+    * student_id : INT <<FK>>
+    * mensagem : TEXT
+    lida : BOOLEAN
+    created_at : DATETIME
+}
+
+
+' ============================================================
+' CALENDÁRIO ACADÉMICO
+' ============================================================
+
+entity "academic_calendar" as CAL {
+
+    * id : INT <<PK>>
+    --
+    * titulo : VARCHAR(150)
+    descricao : TEXT
+    data_inicio : DATETIME
+    data_fim : DATETIME
+    tipo : VARCHAR(50)
+    created_at : DATETIME
+}
+
+
+' ============================================================
+' RELACIONAMENTOS
+' ============================================================
+
+STU ||--o{ TASK :
+possui
+
+STU ||--o{ NOTIF :
+recebe
+
+@enduml
+
+
+
+' ============================================================
+' 4. DIAGRAMA DE SEQUÊNCIA - LOGIN
+' ============================================================
+
+@startuml O_Tempo_Sequencia_Login
+
+title Sistema "O Tempo" - UNIC
+title Diagrama de Sequência - Autenticação e Login
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+
+actor "Utilizador" as USER
+
+participant "Frontend JavaScript" as FRONTEND
+
+participant "Express API" as API
+
+database "MySQL" as DB
+
+
+USER -> FRONTEND :
+Preenche email e senha
+
+FRONTEND -> API :
+POST /api/auth/login
+
+API -> DB :
+SELECT utilizador por email
+
+DB --> API :
+Registo + Hash Bcrypt
+
+
+alt Credenciais válidas
+
+    API -> API :
+    bcrypt.compare()
+
+    API -> API :
+    Identifica role
+
+    API -> API :
+    Gera Token JWT
+
+    API --> FRONTEND :
+    HTTP 200 OK\n{token, user, role}
+
+    FRONTEND -> FRONTEND :
+    Guarda JWT no localStorage
+
+    FRONTEND --> USER :
+    Redireciona para Dashboard
+
+else Credenciais inválidas
+
+    API --> FRONTEND :
+    HTTP 401 Unauthorized
+
+    FRONTEND --> USER :
+    Exibe mensagem de erro
+
+end
+
+@enduml
+
+
+
+' ============================================================
+' 5. DIAGRAMA DE SEQUÊNCIA - REQUISIÇÃO AUTENTICADA
+' ============================================================
+
+@startuml O_Tempo_Sequencia_Autenticada
+
+title Sistema "O Tempo" - UNIC
+title Diagrama de Sequência - Requisição Autenticada
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+
+actor "Estudante" as STUDENT
+
+participant "Frontend" as FRONTEND
+
+participant "Middleware JWT" as JWT
+
+participant "API de Tarefas" as API
+
+database "MySQL" as DB
+
+
+STUDENT -> FRONTEND :
+Solicita lista de tarefas
+
+FRONTEND -> JWT :
+GET /api/tasks\nAuthorization: Bearer JWT
+
+JWT -> JWT :
+Valida assinatura e expiração
+
+
+alt Token válido
+
+    JWT -> API :
+    Encaminha requisição
+
+    API -> DB :
+    SELECT tarefas\nWHERE student_id = ?
+
+    DB --> API :
+    Lista de tarefas
+
+    API --> FRONTEND :
+    HTTP 200 OK\n{tasks}
+
+    FRONTEND --> STUDENT :
+    Exibe tarefas
+
+else Token inválido ou expirado
+
+    JWT --> FRONTEND :
+    HTTP 401 Unauthorized
+
+    FRONTEND --> STUDENT :
+    Solicita novo login
+
+end
+
+@enduml
+
+
+
+' ============================================================
+' 6. FLUXO DE GESTÃO DE TAREFAS
+' ============================================================
+
+@startuml O_Tempo_Fluxo_Tarefas
+
+title Sistema "O Tempo" - UNIC
+title Fluxo de Gestão de Tarefas
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+
+start
+
+:Estudante inicia sessão;
+
+:Sistema valida Token JWT;
+
+if (Token válido?) then (Sim)
+
+    :Abrir Dashboard;
+
+    :Consultar tarefas;
+
+    if (Deseja criar tarefa?) then (Sim)
+
+        :Preencher título;
+        :Informar disciplina;
+        :Definir data de entrega;
+        :Definir prioridade;
+
+        :Guardar tarefa na BD;
+
+    else (Não)
+
+        if (Deseja editar tarefa?) then (Sim)
+
+            :Selecionar tarefa;
+            :Alterar informações;
+            :Atualizar tarefa na BD;
+
+        else (Não)
+
+            if (Deseja concluir tarefa?) then (Sim)
+
+                :Selecionar tarefa;
+                :Alterar estado para "Concluída";
+
+            else (Não)
+
+                :Continuar consulta;
+
+            endif
+
+        endif
+
+    endif
+
+else (Não)
+
+    :Solicitar novo Login;
+
+endif
+
+stop
+
+@enduml
+
+
+
+' ============================================================
+' 7. FLUXO DE EXPORTAÇÃO DE RELATÓRIOS
+' ============================================================
+
+@startuml O_Tempo_Exportacao
+
+title Sistema "O Tempo" - UNIC
+title Fluxo de Exportação de Relatórios
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+
+actor "Administrador" as ADMIN
+
+participant "Painel Admin" as FRONTEND
+
+participant "API" as API
+
+participant "Módulo de Exportação" as EXPORT
+
+database "MySQL" as DB
+
+
+ADMIN -> FRONTEND :
+Seleciona "Exportar Relatório"
+
+FRONTEND -> API :
+GET /api/export
+
+API -> API :
+Valida JWT e permissões
+
+API -> DB :
+Consulta dados
+
+DB --> API :
+Dados solicitados
+
+API -> EXPORT :
+Envia dados
+
+EXPORT -> EXPORT :
+Gera CSV / Excel / PDF
+
+EXPORT --> API :
+Ficheiro gerado
+
+API --> FRONTEND :
+Download do relatório
+
+FRONTEND --> ADMIN :
+Apresenta ficheiro
+
+@enduml
+
+
+
+' ============================================================
+' 8. TECNOLOGIAS DO SISTEMA
+' ============================================================
+
+@startuml O_Tempo_Tecnologias
+
+title Sistema "O Tempo" - UNIC
+title Tecnologias e Componentes
+
+skinparam backgroundColor #FFFFFF
+skinparam Shadowing true
+skinparam Roundcorner 8
+skinparam PrimaryColor #C00000
+skinparam SecondaryColor #222222
+
+
+rectangle "FRONTEND" as FRONT {
+
+    card "HTML5"
+    card "CSS3"
+    card "JavaScript"
+    card "Fetch API"
+    card "LocalStorage"
+}
+
+
+rectangle "BACKEND" as BACK {
+
+    card "Node.js"
+    card "Express.js"
+    card "REST API"
+    card "JWT"
+    card "bcrypt"
+}
+
+
+database "BASE DE DADOS" as DATABASE {
+
+    card "MySQL"
+    card "otempo_db"
+    card "PK / FK"
+    card "UNIQUE"
+}
+
+
+rectangle "SEGURANÇA" as SECURITY {
+
+    card "Autenticação JWT"
+    card "bcrypt"
+    card "Bearer Token"
+    card "Controlo por Role"
+}
+
+
+rectangle "EXPORTAÇÃO" as EXPORT {
+
+    card "CSV"
+    card "Excel"
+    card "PDF"
+}
+
+
+FRONT --> BACK :
+HTTP / REST
+
+BACK --> DATABASE :
+SQL
+
+BACK --> SECURITY :
+Autenticação
+
+BACK --> EXPORT :
+Geração de relatórios
+
+@enduml

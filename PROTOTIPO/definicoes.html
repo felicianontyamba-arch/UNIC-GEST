@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Definições - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+        .setting-item { background: white; border-radius: 0.75rem; padding: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .toggle { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .toggle-spaced { margin-top: 1rem; }
+        .user-name { font-weight: 600; }
+        .user-course { font-size: 0.8rem; }
+        .switch {
+            width: 48px; height: 26px; background: #dfe6e9; border-radius: 999px; position: relative; cursor: pointer; display: inline-block; transition: all 0.2s ease; -webkit-user-select: none; user-select: none;
+        }
+        .switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; left: 3px; top: 3px; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: all 0.2s ease; }
+        .switch.on { background: var(--primary); }
+        .switch.on::after { left: 25px; }
+        @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+                <li><a href="links.html">🔗 Links Úteis</a></li>
+            </ul>
+            <div class="sidebar-divider"></div>
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+                <li><a href="definicoes.html" class="active">⚙️ Definições</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" class="user-name">Utilizador</p>
+                        <p id="userCourse" class="user-course">Eng. Informática</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Terminar sessão</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1>Definições</h1>
+                        <p>Configure a sua experiência na plataforma.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <h2>Notificações</h2>
+                    <div class="toggle"><span>Alertas de prazos</span><span class="switch on" data-setting="alerts" title="Alertas de prazos" role="switch" aria-checked="true" tabindex="0"></span></div>
+                    <div class="toggle toggle-spaced"><span>Resumo semanal</span><span class="switch on" data-setting="weekly" title="Resumo semanal" role="switch" aria-checked="true" tabindex="0"></span></div>
+                </div>
+
+                <div class="setting-item">
+                    <h2>Preferência visual</h2>
+                    <div class="toggle"><span>Tema claro</span><span class="switch on" data-setting="lightTheme" title="Tema claro" role="switch" aria-checked="true" tabindex="0"></span></div>
+                    <div class="toggle toggle-spaced"><span>Modo de contraste</span><span class="switch" data-setting="contrast" title="Modo de contraste" role="switch" aria-checked="false" tabindex="0"></span></div>
+                </div>
+
+                <div class="setting-item">
+                    <h2>Privacidade</h2>
+                    <div class="toggle"><span>Perfil visível para colegas</span><span class="switch" data-setting="profileVisible" title="Perfil visível para colegas" role="switch" aria-checked="false" tabindex="0"></span></div>
+                    <div class="toggle toggle-spaced"><span>Partilha de progresso</span><span class="switch on" data-setting="progressShare" title="Partilha de progresso" role="switch" aria-checked="true" tabindex="0"></span></div>
+                </div>
+
+                <div class="setting-item">
+                    <h2>Conta</h2>
+                    <div class="toggle"><span>Guardar sessão</span><span class="switch on" data-setting="saveSession" title="Guardar sessão" role="switch" aria-checked="true" tabindex="0"></span></div>
+                    <div class="toggle toggle-spaced"><span>Autenticação dupla</span><span class="switch" data-setting="twoFactor" title="Autenticação dupla" role="switch" aria-checked="false" tabindex="0"></span></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="mobile-menu.js"></script>
+    <script>
+        const storedUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+        const name = localStorage.getItem('studentName') || storedUser.nome || 'Utilizador';
+        document.getElementById('userName').textContent = name;
+        document.getElementById('userInitial').textContent = name.charAt(0).toUpperCase();
+
+        const defaultSettings = {
+            alerts: true,
+            weekly: true,
+            lightTheme: true,
+            contrast: false,
+            profileVisible: false,
+            progressShare: true,
+            saveSession: true,
+            twoFactor: false
+        };
+
+        function loadSettings() {
+            const saved = JSON.parse(localStorage.getItem('unicSettings') || '{}');
+            const settings = { ...defaultSettings, ...saved };
+
+            document.querySelectorAll('.switch').forEach((toggle) => {
+                const key = toggle.dataset.setting;
+                const enabled = !!settings[key];
+                toggle.classList.toggle('on', enabled);
+                toggle.setAttribute('aria-checked', String(enabled));
+            });
+        }
+
+        function saveSettings() {
+            const settings = {};
+            document.querySelectorAll('.switch').forEach((toggle) => {
+                settings[toggle.dataset.setting] = toggle.classList.contains('on');
+            });
+            localStorage.setItem('unicSettings', JSON.stringify(settings));
+        }
+
+        document.querySelectorAll('.switch').forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('on');
+                toggle.setAttribute('aria-checked', String(toggle.classList.contains('on')));
+                saveSettings();
+            });
+
+            toggle.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggle.click();
+                }
+            });
+        });
+
+        loadSettings();
+
+        function logout(){ localStorage.removeItem('isLoggedIn'); window.location.href='login.html'; }
+    </script>
+</body>
+</html>

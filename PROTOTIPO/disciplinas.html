@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disciplinas - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        .disciplines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .discipline-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary);
+        }
+
+        .discipline-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .discipline-card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .discipline-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .discipline-card-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .discipline-card-professor {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .discipline-card-body {
+            padding: 1.5rem;
+        }
+
+        .discipline-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .discipline-stat:last-child {
+            border-bottom: none;
+        }
+
+        .discipline-stat-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .discipline-stat-value {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .discipline-progress {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #f5f6fa;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .discipline-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .discipline-actions button {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .discipline-actions button:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .discipline-actions button.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .discipline-actions button.primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .disciplines-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .discipline-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html" class="active">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Utilizador</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1>📚 Minhas Disciplinas</h1>
+                        <p>Acompanhe suas disciplinas, tarefas e progresso</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DISCIPLINES GRID -->
+            <div class="disciplines-grid" id="disciplinesContainer">
+                <!-- Carregando... -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Verificar autenticação
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        // Carregar dados do utilizador
+        const storedUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+        const userName = localStorage.getItem('studentName') || storedUser.nome || 'Utilizador';
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userInitial').textContent = userName.charAt(0).toUpperCase();
+
+        const API_URL = (window.location && window.location.origin ? `${window.location.origin}/api` : '/api');
+        let currentCourse = localStorage.getItem('studentCourse') || storedUser.curso || 'Eng. Informática';
+        let disciplines = [];
+
+        async function loadCourseDisciplines() {
+            const token = localStorage.getItem('token') || localStorage.getItem('studentToken');
+            if (!token) {
+                disciplines = [];
+                renderDisciplines();
+                return;
+            }
+
+            try {
+                const coursesResponse = await fetch(`${API_URL}/courses`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!coursesResponse.ok) {
+                    disciplines = [];
+                    renderDisciplines();
+                    return;
+                }
+
+                const courses = await coursesResponse.json();
+                const matchingCourse = courses.find(course => course.nome === currentCourse || course.nome?.includes(currentCourse));
+                if (!matchingCourse) {
+                    disciplines = [];
+                    renderDisciplines();
+                    return;
+                }
+
+                const subjectsResponse = await fetch(`${API_URL}/courses/${matchingCourse.id}/subjects`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                disciplines = subjectsResponse.ok ? await subjectsResponse.json() : [];
+                renderDisciplines();
+            } catch (error) {
+                console.warn('Erro ao carregar disciplinas do curso:', error);
+                disciplines = [];
+                renderDisciplines();
+            }
+        }
+
+        function renderDisciplines() {
+            const container = document.getElementById('disciplinesContainer');
+
+            if (disciplines.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">📚</div>
+                        <div class="empty-state-text">Nenhuma disciplina encontrada</div>
+                        <div style="font-size: 0.9rem;">O administrador ainda não criou disciplinas para o seu curso.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = disciplines.map((discipline, index) => `
+                <div class="discipline-card">
+                    <div class="discipline-card-header">
+                        <div class="discipline-card-icon">${['💻', '🗄️', '📐', '🌐', '🔧', '📊'][index % 6]}</div>
+                        <div class="discipline-card-name">${discipline.nome}</div>
+                        <div class="discipline-card-professor">${discipline.professor || 'Professor a definir'}</div>
+                    </div>
+                    <div class="discipline-card-body">
+                        <div class="discipline-stat">
+                            <span class="discipline-stat-label">📌 Código</span>
+                            <span class="discipline-stat-value">${discipline.codigo || '—'}</span>
+                        </div>
+                        <div class="discipline-stat">
+                            <span class="discipline-stat-label">🎯 Créditos</span>
+                            <span class="discipline-stat-value" style="color: var(--success);">${discipline.creditos || 0}</span>
+                        </div>
+                        <div class="discipline-actions">
+                            <button class="primary" onclick="viewDisciplineTasks('${discipline.nome}')">
+                                📋 Ver Tarefas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewDisciplineTasks(disciplineName) {
+            localStorage.setItem('selectedDiscipline', disciplineName);
+            window.location.href = 'tarefas.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+
+        loadCourseDisciplines();
+    </script>
+    <script src="mobile-menu.js"></script>
+</body>
+</html>

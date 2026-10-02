@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembretes &amp; Notificações - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html" class="active">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+                <li><a href="definicoes.html">⚙️ Definições</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">F</div>
+                    <div class="sidebar-user-info">
+                        <p style="font-weight: 600;">Feliciano</p>
+                        <p style="font-size: 0.8rem;">Eng. Informática</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Terminar sessão</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-shell">
+                <div class="page-intro">
+                    <div class="page-icon">🔔</div>
+                    <div>
+                        <h1 class="page-title">Lembretes &amp; Notificações</h1>
+                        <p class="page-subtitle">Mantenha-se informado sobre prazos, provas e tarefas que exigem atenção.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="notification-card">
+                        <div class="card-header">
+                            <h2>📌 Tarefas pendentes</h2>
+                            <span class="badge badge-warning">3</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="notification-item">
+                                <div class="notification-text">
+                                    <strong>Trabalho de Programação</strong>
+                                    <span>Entrega em 2 dias</span>
+                                </div>
+                                <span class="notification-status pending">Pendente</span>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-text">
+                                    <strong>Base de Dados</strong>
+                                    <span>Relatório para revisão</span>
+                                </div>
+                                <span class="notification-status pending">Pendente</span>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-text">
+                                    <strong>Exercício de Matemática</strong>
+                                    <span>Prazo no fim da semana</span>
+                                </div>
+                                <span class="notification-status pending">Pendente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="notification-card">
+                        <div class="card-header">
+                            <h2>✅ Concluídas</h2>
+                            <span class="badge badge-success">2</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="notification-item">
+                                <div class="notification-text">
+                                    <strong>Leitura de artigo</strong>
+                                    <span>Concluída ontem</span>
+                                </div>
+                                <span class="notification-status done">Concluída</span>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-text">
+                                    <strong>Quiz de Redes</strong>
+                                    <span>Resultado enviado</span>
+                                </div>
+                                <span class="notification-status done">Concluída</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

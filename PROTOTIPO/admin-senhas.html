@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Senhas - Admin</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        :root {
+            --panel: #ffffff;
+            --panel-soft: #f8fafc;
+            --text-dark: #111827;
+            --text-light: #64748b;
+            --border: #e7eaf0;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            background: #f5f7fb;
+        }
+
+        .sidebar {
+            width: 250px;
+            min-width: 250px;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 1.2rem 0 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0.5rem 1.2rem 1rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            color: #f87171;
+            font-size: 1.4rem;
+            line-height: 1.2;
+            margin: 0.5rem 0 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0.75rem 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin: 0.2rem 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            text-decoration: none;
+            color: #dce6f5;
+            padding: 0.8rem 0.9rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: linear-gradient(90deg, #ef4444 0%, #d90429 100%);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: var(--text-dark);
+        }
+
+        .header p {
+            margin: 0.5rem 0 0;
+            color: var(--text-light);
+        }
+
+        .container {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .students-table thead {
+            background: var(--panel-soft);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .students-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .students-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-light);
+        }
+
+        .students-table tbody tr:hover {
+            background: var(--panel-soft);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: var(--panel-soft);
+            color: var(--text-dark);
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .student-info {
+            text-align: left;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .student-email {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            width: calc(100% - 1.5rem);
+            padding: 0.75rem;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+            margin-left: 0.75rem;
+            margin-right: 0.75rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.22);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 300px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div style="font-size: 2.2rem;">🔐</div>
+                <h2>ADMIN</h2>
+                <p>Gerenciar Senhas</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="admin.html">📊 Dashboard</a></li>
+                <li><a href="admin-senhas.html" class="active">🔐 Gerenciar Senhas</a></li>
+                <li><a href="admin-login.html">🚪 Sair</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">🚪 Terminar Sessão</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <h1>🔐 Gerenciar Senhas</h1>
+                <p>Altere as senhas dos estudantes e administradores</p>
+            </div>
+
+            <!-- CONTAINER -->
+            <div class="container">
+                <!-- ALERTS -->
+                <div id="successAlert" class="alert alert-success"></div>
+                <div id="errorAlert" class="alert alert-error"></div>
+
+                <!-- SEARCH -->
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="🔍 Pesquisar por nome ou email...">
+                </div>
+
+                <!-- LOADING -->
+                <div id="loading" class="loading">Carregando estudantes...</div>
+
+                <!-- TABLE -->
+                <table class="students-table" id="studentsTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Curso</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsBody">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL PARA ALTERAR SENHA -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Alterar Senha</h2>
+            </div>
+
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label id="studentLabel">Estudante:</label>
+                    <input type="text" id="studentName" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">Nova Senha:</label>
+                    <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Senha:</label>
+                    <input type="password" id="confirmPassword" placeholder="Repita a senha" required>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Atualizar Senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let students = [];
+        let currentStudentId = null;
+        const token = localStorage.getItem('token');
+
+        // ✅ VERIFICAR AUTENTICAÇÃO
+        if (!token) {
+            window.location.href = 'admin-login.html';
+        }
+
+        // ✅ CARREGAR ESTUDANTES
+        async function loadStudents() {
+            try {
+                const response = await fetch('/api/password/admin/students-password-management', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Não autorizado');
+                }
+
+                students = await response.json();
+                displayStudents(students);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('studentsTable').style.display = 'table';
+            } catch (error) {
+                showError('Erro ao carregar estudantes: ' + error.message);
+                document.getElementById('loading').innerHTML = '❌ Erro ao carregar dados';
+            }
+        }
+
+        // ✅ EXIBIR ESTUDANTES
+        function displayStudents(data) {
+            const tbody = document.getElementById('studentsBody');
+            tbody.innerHTML = '';
+
+            data.forEach(student => {
+                const row = `
+                    <tr>
+                        <td>
+                            <div class="student-info">
+                                <div class="student-name">${student.nome}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="student-email">${student.email}</div>
+                        </td>
+                        <td>${student.curso}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="openPasswordModal(${student.id}, '${student.nome}')">
+                                Alterar Senha
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // ✅ FILTRAR ESTUDANTES
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = students.filter(s => 
+                s.nome.toLowerCase().includes(query) || 
+                s.email.toLowerCase().includes(query)
+            );
+            displayStudents(filtered);
+        });
+
+        // ✅ ABRIR MODAL
+        function openPasswordModal(studentId, studentName) {
+            currentStudentId = studentId;
+            document.getElementById('studentName').value = studentName;
+            document.getElementById('passwordModal').classList.add('active');
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        // ✅ FECHAR MODAL
+        function closeModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+
+        // ✅ ENVIAR FORMULÁRIO
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showError('As senhas não correspondem!');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showError('A senha deve ter no mínimo 6 caracteres!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/password/admin/change-student-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        studentId: currentStudentId,
+                        newPassword: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erro ao alterar senha');
+                }
+
+                showSuccess('✅ Senha alterada com sucesso e guardada no XAMPP!');
+                closeModal();
+                loadStudents();
+            } catch (error) {
+                showError('Erro: ' + error.message);
+            }
+        });
+
+        // ✅ MOSTRAR MENSAGENS
+        function showSuccess(msg) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = msg;
+            alert.classList.add('active');
+            setTimeout(() => alert.classList.remove('active'), 4000);
+        }
+
+        function showError(msg) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = msg;
+            alert.classList.add('active');
+            setTimeout(() => alert.classList.remove('active'), 4000);
+        }
+
+        // ✅ LOGOUT
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'admin-login.html';
+        }
+
+        // ✅ FECHAR MODAL AO CLICAR FORA
+        document.getElementById('passwordModal').addEventListener('click', (e) => {
+            if (e.target.id === 'passwordModal') {
+                closeModal();
+            }
+        });
+
+        // ✅ CARREGAR ESTUDANTES AO ABRIR PÁGINA
+        loadStudents();
+    </script>
+</body>
+</html>

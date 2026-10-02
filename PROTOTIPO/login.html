@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Entrar — UNIC GEST</title>
+    <link rel="stylesheet" href="styles.css?v=20260924-1">
+    <style>
+      /* Page-specific polished styles */
+      :root{--bg-start:#071129;--bg-end:#6d1b1b}
+      html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,"Helvetica Neue",Arial}
+      body{background:linear-gradient(135deg,var(--bg-start) 0%,var(--bg-end) 100%);display:flex;align-items:center;justify-content:center;padding:24px;min-height:100vh}
+      .card{width:min(1100px,96vw);max-width:100%;display:grid;grid-template-columns:1fr 420px;background:rgba(255,255,255,0.98);border-radius:18px;overflow:hidden;box-shadow:0 30px 60px rgba(2,6,23,0.6)}
+      .promo{background:linear-gradient(160deg,#d90429 0%,#a8001f 100%);color:#fff;padding:44px 40px;display:flex;flex-direction:column;justify-content:center}
+      .promo h1{margin:0;font-size:2.1rem;letter-spacing:-0.02em}
+      .promo p{margin:14px 0 0;color:rgba(255,255,255,0.92);max-width:380px}
+      .promo ul{margin:20px 0 0;padding:0;list-style:none}
+      .promo li{margin:8px 0;font-weight:600}
+      .form-area{padding:36px 32px;display:flex;align-items:center;justify-content:center;width:100%}
+      .form{width:100%;max-width:100%}
+      .form h2{margin:0 0 6px;font-size:1.6rem}
+      .form .subtitle{margin:0 0 18px;color:#6b7280}
+      .form .field{margin-bottom:14px}
+      label{display:block;margin-bottom:8px;font-weight:600;color:#0f172a}
+      input[type=email],input[type=password]{width:100%;max-width:100%;padding:12px 14px;border-radius:10px;border:1px solid #e6e9ef;font-size:1rem;min-height:44px;display:block}
+      .actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:12px;flex-wrap:wrap}
+      .login-btn{margin-top:18px;background:linear-gradient(135deg,#d90429 0%,#a8001f 100%);color:#fff;border:none;padding:12px;border-radius:10px;width:100%;font-weight:700;cursor:pointer}
+      .meta-row{display:flex;gap:12px;align-items:center;margin-top:10px;color:#6b7280;font-size:0.95rem}
+      .demo{margin-top:18px;padding:12px;border-radius:10px;background:#f8fafc;border:1px solid #e6eef8;color:#0f172a}
+      .strength{height:8px;border-radius:8px;background:#eee;overflow:hidden;margin-top:6px}
+      .strength > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#ef4444,#f97316)}
+      .detected{margin-top:8px;font-weight:700;color:#334155}
+      @media (max-width:920px){.card{grid-template-columns:1fr;min-height:auto;width:min(540px,96vw)}.promo{order:2;padding:28px}.form-area{padding:24px}} 
+      @media (max-width:560px){body{padding:12px;align-items:flex-start}.card{width:min(100%,96vw);border-radius:14px}.promo{padding:24px 20px}.promo h1{font-size:1.7rem}.promo p{font-size:0.95rem}.form-area{padding:22px 18px}.form h2{font-size:1.4rem}.form .subtitle{font-size:0.9rem}.actions{flex-direction:column;align-items:flex-start}.input[type=email],input[type=password]{font-size:16px}}
+    </style>
+  </head>
+  <body>
+    <main class="card" role="main">
+      <section class="promo" aria-hidden="false">
+        <div>
+          <div class="brand-badge" style="background:rgba(255,255,255,0.09);display:inline-flex;padding:6px 10px;border-radius:999px;font-weight:700;margin-bottom:14px">UNIC</div>
+          <h1>UNIC GEST</h1>
+          <p>Gestor académico: organize tarefas, acompanhe o progresso e gere relatórios com simplicidade.</p>
+          <ul>
+            <li>Agenda e prazos</li>
+            <li>Desempenho em tempo real</li>
+            <li>Relatórios e exportações</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="form-area" aria-labelledby="login-title">
+        <form id="loginForm" class="form" novalidate>
+          <h2 id="login-title">Entrar</h2>
+          <div class="subtitle">Entrar como: Administrador / Estudante (detecção automática pela senha)</div>
+
+          <div id="errorMessage" style="display:none;color:#981b1b;background:#fff3f3;padding:10px;border-radius:8px;margin-bottom:12px"></div>
+
+          <div class="field">
+            <label for="email">Email ou nº de estudante</label>
+            <input id="email" name="email" type="email" placeholder="seu.email@unic.ao" aria-required="true">
+          </div>
+
+          <div class="field">
+            <label for="password">Senha</label>
+            <input id="password" name="password" type="password" placeholder="••••••••" aria-required="true" aria-describedby="pw-hint pw-strength">
+            <div id="pw-hint" class="meta-row">Dica: use sua senha institucional.</div>
+            <div id="pw-strength" class="strength"><i></i></div>
+            <div id="detectedRole" class="detected">Tentativa: servidor unificado</div>
+          </div>
+
+          <div class="actions">
+            <label style="font-weight:600"><input type="checkbox" id="remember"> Lembrar-me</label>
+            <a href="#forgot" style="color:#d90429;text-decoration:none;font-weight:600">Esqueceu a senha?</a>
+          </div>
+
+          <button type="submit" class="login-btn">Entrar</button>
+
+          <!-- Demo credentials removed -->
+        </form>
+      </section>
+    </main>
+
+    <script src="user-manager.js?v=20260924-1"></script>
+    <script>
+      const pwInput = document.getElementById('password');
+      const strengthBar = document.querySelector('.strength > i');
+      const detected = document.getElementById('detectedRole');
+      const errorDiv = document.getElementById('errorMessage');
+
+      function scorePassword(pw){
+        let score = 0;
+        if (!pw) return 0;
+        if (pw.length >= 8) score += 1;
+        if (pw.length >= 12) score += 1;
+        if (/[A-Z]/.test(pw)) score += 1;
+        if (/[0-9]/.test(pw)) score += 1;
+        if (/[^A-Za-z0-9]/.test(pw)) score += 1;
+        return score;
+      }
+
+      function updateStrength(){
+        const pw = pwInput.value || '';
+        const s = scorePassword(pw);
+        const pct = Math.min(100, (s/5)*100);
+        strengthBar.style.width = pct + '%';
+        if (pct < 40) strengthBar.style.background = 'linear-gradient(90deg,#ef4444,#f97316)';
+        else if (pct < 80) strengthBar.style.background = 'linear-gradient(90deg,#f97316,#f59e0b)';
+        else strengthBar.style.background = 'linear-gradient(90deg,#10b981,#059669)';
+      }
+
+      pwInput.addEventListener('input', updateStrength);
+      updateStrength();
+
+      window.UNIC_LOGIN_CONFIG = {
+        apiUrl: '/api/auth/login',
+        redirectAdmin: 'admin.html',
+        redirectStudent: 'dashboard.html',
+        errorSelector: '#errorMessage',
+        emailFieldId: 'email',
+        passwordFieldId: 'password',
+        defaultError: 'Credenciais inválidas ou servidor indisponível.'
+      };
+
+      if (detected) {
+        detected.textContent = 'Tentativa: servidor unificado';
+      }
+    </script>
+    <script src="login-flow.js?v=20260924-2"></script>
+  </body>
+</html>

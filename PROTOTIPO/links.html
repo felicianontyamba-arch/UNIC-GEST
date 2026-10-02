@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links Úteis - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        .link-list { display: grid; gap: 1rem; }
+        .link-item {
+            background: white; border-radius: 0.75rem; padding: 1rem 1.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+        }
+        .link-item a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .link-item a:hover { text-decoration: underline; }
+        @media (max-width: 768px) {
+            .link-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+                <li><a href="links.html" class="active">🔗 Links Úteis</a></li>
+            </ul>
+            <div class="sidebar-divider"></div>
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+                <li><a href="definicoes.html">⚙️ Definições</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Carregando...</p>
+                        <p id="userCourse" style="font-size: 0.8rem;">Eng. Informática</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Terminar sessão</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1>Links Úteis</h1>
+                        <p>Recursos importantes para a sua vida académica.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>📚 Recursos Académicos</h2>
+                </div>
+                <div class="card-body">
+                    <div class="link-list">
+                        <div class="link-item">
+                            <span>Plataforma de aprendizagem</span>
+                            <a href="#" target="_blank">Aceder</a>
+                        </div>
+                        <div class="link-item">
+                            <span>Biblioteca digital</span>
+                            <a href="#" target="_blank">Abrir</a>
+                        </div>
+                        <div class="link-item">
+                            <span>Portal do estudante</span>
+                            <a href="https://panal.unic.co.ao/" target="_blank" rel="noopener noreferrer">Entrar</a>
+                        </div>
+                        <div class="link-item">
+                            <span>Calendário académico</span>
+                            <a href="calendario.html">Ver calendário</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="mobile-menu.js"></script>
+    <script>
+        const storedUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+        const name = localStorage.getItem('studentName') || storedUser.nome || 'Utilizador';
+        document.getElementById('userName').textContent = name;
+        document.getElementById('userInitial').textContent = name.charAt(0).toUpperCase();
+        function logout(){ localStorage.removeItem('isLoggedIn'); window.location.href='login.html'; }
+    </script>
+</body>
+</html>

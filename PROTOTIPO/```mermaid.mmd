@@ -1,0 +1,81 @@
+# Arquitetura do Sistema O Tempo
+
+```mermaid
+flowchart TD
+    A["Estudante"] --> B["Login"]
+    B --> C["Backend Node.js"]
+    C --> D["MySQL"]
+
+flowchart TD
+
+    START["SISTEMA 'O TEMPO' - UNIC"]
+
+    STUDENT["ESTUDANTE UNIC"]
+    ADMIN["ADMINISTRADOR"]
+
+    START --> STUDENT
+    START --> ADMIN
+
+    subgraph FRONTEND["CAMADA DE APRESENTAÇÃO - FRONTEND"]
+        LOGIN["Página de Login<br>login.html"]
+        DASHBOARD["Dashboard do Estudante<br>index.html"]
+        ADMIN_PANEL["Painel de Administração<br>admin.html"]
+    end
+
+    STUDENT --> LOGIN
+    ADMIN --> LOGIN
+
+    LOGIN --> DASHBOARD
+    LOGIN --> ADMIN_PANEL
+
+    subgraph BACKEND["CAMADA DE SERVIÇOS - BACKEND"]
+        SERVER["Node.js + Express<br>Porta 5000"]
+        AUTH["/api/auth/login"]
+        TASKS["/api/tasks"]
+        STUDENTS["/api/students"]
+        NOTIFICATIONS["/api/notifications"]
+        CALENDAR["/api/calendar"]
+        EXPORT["/api/export"]
+    end
+
+    LOGIN --> AUTH
+    AUTH --> SERVER
+
+    SERVER --> TASKS
+    SERVER --> STUDENTS
+    SERVER --> NOTIFICATIONS
+    SERVER --> CALENDAR
+    SERVER --> EXPORT
+
+    subgraph DATABASE["BASE DE DADOS - MySQL"]
+        DB["otempo_db"]
+        ADMINS["admins"]
+        STUDENTS_DB["students"]
+        TASKS_DB["tasks"]
+        NOTIFICATIONS_DB["notifications"]
+        CALENDAR_DB["academic_calendar"]
+    end
+
+    AUTH --> ADMINS
+    AUTH --> STUDENTS_DB
+    TASKS --> TASKS_DB
+    STUDENTS --> STUDENTS_DB
+    NOTIFICATIONS --> NOTIFICATIONS_DB
+    CALENDAR --> CALENDAR_DB
+
+    STUDENTS_DB -->|"1 : N"| TASKS_DB
+    STUDENTS_DB -->|"1 : N"| NOTIFICATIONS_DB
+Mermaid Snap
+    EXPORT --> STUDENTS_DB
+    EXPORT --> TASKS_DB
+    EXPORT --> NOTIFICATIONS_DB
+
+    EXPORT --> CSV["CSV"]
+    EXPORT --> EXCEL["Excel"]
+    EXPORT --> PDF["PDF"]
+
+    CSV --> DOWNLOAD["Download"]
+    EXCEL --> DOWNLOAD
+    PDF --> DOWNLOAD
+
+    DOWNLOAD --> ADMIN

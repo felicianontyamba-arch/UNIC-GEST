@@ -1,0 +1,530 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            box-shadow: 0 8px 18px rgba(9, 132, 227, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-header-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            font-weight: 700;
+            border: 2px solid rgba(255, 255, 255, 0.55);
+        }
+
+        .profile-header h1 {
+            margin: 0 0 0.2rem;
+            font-size: clamp(1.4rem, 2vw, 2rem);
+        }
+
+        .profile-header p {
+            margin: 0;
+            opacity: 0.85;
+            font-size: 0.95rem;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 1.5rem;
+        }
+
+        .profile-panel {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .profile-panel h2 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            color: var(--text);
+        }
+
+        .profile-panel h3 {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.08rem;
+            margin: 0 0 1rem;
+        }
+
+        .profile-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .profile-form .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .profile-summary {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .summary-item {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef5ff 100%);
+            border: 1px solid var(--border);
+        }
+
+        .summary-item strong {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-item span {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-grid,
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+                <li><a href="links.html">🔗 Links Úteis</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html" class="active">👤 Meu Perfil</a></li>
+                <li><a href="definicoes.html">⚙️ Definições</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Utilizador</p>
+                        <p id="userCourse" style="font-size: 0.8rem;">Eng. Informática</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Terminar sessão</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1>Perfil do Estudante</h1>
+                        <p>Atualize os seus dados pessoais e académicos.</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-primary" type="button">💾 Guardar alterações</button>
+                </div>
+            </div>
+
+            <div class="profile-header">
+                <div class="profile-header-info">
+                    <div class="profile-avatar" id="profileAvatar">F</div>
+                    <div>
+                        <h1 id="profileName">Utilizador</h1>
+                        <p>Engenharia Informática • 3º Semestre</p>
+                    </div>
+                </div>
+                <span class="badge badge-success">Ativo</span>
+            </div>
+
+            <div class="profile-grid">
+                <div class="profile-panel">
+                    <h2>Informações pessoais</h2>
+                    <div class="profile-form">
+                        <div class="form-group full-width">
+                            <label for="fullName">Nome completo</label>
+                            <input id="fullName" type="text" value="Utilizador">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input id="email" type="email" value="estudante@unic.ao">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Telefone</label>
+                            <input id="phone" type="tel" value="+244 923 456 789">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="course">Curso</label>
+                            <select id="course">
+                                <option value="">Carregando cursos...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="semester">Semestre</label>
+                            <select id="semester">
+                                <option selected>3º Semestre</option>
+                                <option>1º Semestre</option>
+                                <option>2º Semestre</option>
+                                <option>4º Semestre</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="address">Morada</label>
+                            <input id="address" type="text" value="Luanda, Angola">
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" type="button" onclick="saveProfile()">💾 Guardar perfil</button>
+                        <button class="btn btn-secondary" type="button" onclick="resetProfileForm()">Cancelar</button>
+                    </div>
+                </div>
+
+                <div class="profile-summary">
+                    <div class="profile-panel">
+                        <h3>Resumo</h3>
+                        <div class="summary-item">
+                            <strong>06</strong>
+                            <span>Disciplinas</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>23</strong>
+                            <span>Tarefas</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>18</strong>
+                            <span>Concluídas</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-panel">
+                        <h3>Preferências</h3>
+                        <div class="form-group">
+                            <label for="theme">Tema</label>
+                            <select id="theme">
+                                <option selected>Claro</option>
+                                <option>Escuro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="notificationPref">Notificações</label>
+                            <select id="notificationPref">
+                                <option selected>Ativas</option>
+                                <option>Somente importantes</option>
+                                <option>Desativadas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="mobile-menu.js"></script>
+    <script>
+        const userData = (() => {
+            try {
+                return JSON.parse(localStorage.getItem('user') || '{}');
+            } catch (error) {
+                return {};
+            }
+        })();
+
+        const studentName = userData.nome || localStorage.getItem('studentName') || 'Feliciano';
+        const studentCourse = userData.curso || localStorage.getItem('studentCourse') || 'Eng. Informática';
+        const studentEmail = userData.email || localStorage.getItem('studentEmail') || 'estudante@unic.ao';
+        const studentSemester = localStorage.getItem('studentSemester') || '3º Semestre';
+
+        async function resolveCurrentCourseFromServer() {
+            const token = localStorage.getItem('token') || localStorage.getItem('studentToken');
+            if (!token) return studentCourse;
+
+            try {
+                const response = await fetch('/api/courses', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) return studentCourse;
+
+                const courses = await response.json();
+                if (!Array.isArray(courses) || !courses.length) return studentCourse;
+
+                const currentUser = (() => {
+                    try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+                })();
+
+                const courseFromUser = currentUser.curso || localStorage.getItem('studentCourse');
+                const matchingCourse = courses.find((course) => course.nome === courseFromUser || course.nome?.includes(courseFromUser) || course.codigo === courseFromUser);
+                const selectedCourse = matchingCourse ? matchingCourse.nome : courses[0].nome;
+
+                localStorage.setItem('studentCourse', selectedCourse);
+                return selectedCourse;
+            } catch (error) {
+                console.warn('Não foi possível sincronizar o curso atual:', error);
+                return studentCourse;
+            }
+        }
+
+        async function loadAvailableCourses() {
+            const token = localStorage.getItem('token') || localStorage.getItem('studentToken');
+            const courseSelect = document.getElementById('course');
+            if (!courseSelect) return;
+
+            if (!token) {
+                courseSelect.innerHTML = '<option value="">Selecione um curso</option>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/courses', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    courseSelect.innerHTML = '<option value="">Selecione um curso</option>';
+                    return;
+                }
+
+                const courses = await response.json();
+                if (!Array.isArray(courses) || !courses.length) {
+                    courseSelect.innerHTML = '<option value="">Nenhum curso disponível</option>';
+                    return;
+                }
+
+                const selectedCourse = localStorage.getItem('studentCourse') || studentCourse || courses[0].nome;
+                courseSelect.innerHTML = courses.map((course) => `<option value="${course.nome}">${course.nome}</option>`).join('');
+                courseSelect.value = courses.some((course) => course.nome === selectedCourse) ? selectedCourse : courses[0].nome;
+            } catch (error) {
+                console.warn('Não foi possível carregar os cursos disponíveis:', error);
+                courseSelect.innerHTML = '<option value="">Erro ao carregar cursos</option>';
+            }
+        }
+
+        function setUserHeader(name, courseName) {
+            document.getElementById('userName').textContent = name;
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileAvatar').textContent = (name || 'F').charAt(0).toUpperCase();
+            document.getElementById('userInitial').textContent = (name || 'F').charAt(0).toUpperCase();
+            document.getElementById('userCourse').textContent = courseName;
+        }
+
+        function getStudentIdFromStorage() {
+            const user = (() => {
+                try {
+                    return JSON.parse(localStorage.getItem('user') || '{}');
+                } catch {
+                    return {};
+                }
+            })();
+
+            return Number(localStorage.getItem('studentId') || user.id || 1);
+        }
+
+        function fillStudentProfile(student) {
+            const name = student?.nome || studentName || 'Feliciano';
+            const course = student?.curso || studentCourse || 'Eng. Informática';
+            const email = student?.email || studentEmail || 'estudante@unic.ao';
+            const phone = student?.telefone || '+244 923 456 789';
+            const semester = student?.semestre || studentSemester || '3º Semestre';
+            const address = student?.morada || 'Luanda, Angola';
+
+            document.getElementById('fullName').value = name;
+            document.getElementById('email').value = email;
+            document.getElementById('phone').value = phone;
+            document.getElementById('course').value = course;
+            document.getElementById('semester').value = semester;
+            document.getElementById('address').value = address;
+            setUserHeader(name, course);
+        }
+
+        async function loadProfile() {
+            const studentId = getStudentIdFromStorage();
+            const token = localStorage.getItem('token') || localStorage.getItem('studentToken');
+            const user = (() => {
+                try {
+                    return JSON.parse(localStorage.getItem('user') || '{}');
+                } catch {
+                    return {};
+                }
+            })();
+
+            await loadAvailableCourses();
+            const resolvedCourse = await resolveCurrentCourseFromServer();
+            const fallbackStudent = {
+                nome: studentName,
+                email: studentEmail,
+                curso: resolvedCourse || studentCourse,
+                telefone: '+244 923 456 789',
+                semestre: studentSemester,
+                morada: 'Luanda, Angola'
+            };
+
+            if (token) {
+                try {
+                    const response = await fetch(`/api/students/${studentId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const student = await response.json();
+                        fillStudentProfile({ ...fallbackStudent, ...user, ...student, curso: student?.curso || resolvedCourse || studentCourse });
+                        return;
+                    }
+                } catch (error) {
+                    console.warn('Não foi possível carregar o perfil do servidor:', error.message);
+                }
+            }
+
+            fillStudentProfile({ ...fallbackStudent, ...user, ...user.student, curso: resolvedCourse || studentCourse });
+        }
+
+        async function saveProfile() {
+            const studentId = getStudentIdFromStorage();
+            const data = {
+                nome: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                curso: document.getElementById('course').value,
+                semestre: document.getElementById('semester').value,
+                telefone: document.getElementById('phone').value.trim(),
+                morada: document.getElementById('address').value.trim()
+            };
+
+            if (!data.nome || !data.email) {
+                alert('Nome e email são obrigatórios.');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('studentToken');
+                const response = await fetch(`/api/students/${studentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(result.error || 'Não foi possível guardar o perfil.');
+                }
+
+                localStorage.setItem('studentName', data.nome);
+                localStorage.setItem('studentCourse', data.curso);
+                localStorage.setItem('studentEmail', data.email);
+                localStorage.setItem('studentSemester', data.semestre);
+
+                const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+                localStorage.setItem('user', JSON.stringify({
+                    ...storedUser,
+                    id: storedUser.id || studentId,
+                    nome: data.nome,
+                    email: data.email,
+                    curso: data.curso,
+                    telefone: data.telefone,
+                    morada: data.morada
+                }));
+
+                setUserHeader(data.nome, data.curso);
+                alert('Perfil guardado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao guardar perfil:', error);
+                alert(error.message || 'Erro ao guardar o perfil.');
+            }
+        }
+
+        function resetProfileForm() {
+            loadProfile();
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('studentEmail');
+            localStorage.removeItem('studentName');
+            localStorage.removeItem('studentCourse');
+            localStorage.removeItem('studentSemester');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        setUserHeader(studentName, studentCourse);
+        loadProfile();
+    </script>
+</body>
+</html>

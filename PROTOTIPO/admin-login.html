@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - UNIC GEST</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at top left, rgba(217, 4, 41, 0.14), transparent 25%),
+                linear-gradient(135deg, #0f172a 0%, #111827 35%, #7f1d1d 100%);
+        }
+
+        .login-container {
+            width: min(100%, 900px);
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            background: rgba(255,255,255,0.96);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+        }
+
+        .brand-panel {
+            background: linear-gradient(160deg, rgba(217, 4, 41, 0.96) 0%, rgba(168, 0, 31, 0.94) 100%);
+            color: white;
+            padding: 42px 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .brand-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 28%);
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .brand-logo {
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+
+        .brand-panel h2 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 2.5vw, 2.8rem);
+            letter-spacing: -0.05em;
+        }
+
+        .brand-panel p {
+            margin: 0;
+            color: rgba(255,255,255,0.82);
+            line-height: 1.7;
+            max-width: 350px;
+        }
+
+        .brand-meta {
+            margin-top: 24px;
+            display: grid;
+            gap: 10px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .brand-meta li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .brand-meta li::before {
+            content: "✓";
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.12);
+            font-size: 0.82rem;
+        }
+
+        .form-panel {
+            padding: 42px 36px;
+            background: rgba(248, 250, 252, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container-inner {
+            width: min(100%, 420px);
+        }
+
+        .login-container h3 {
+            margin: 0 0 8px;
+            font-size: clamp(1.8rem, 2vw, 2.4rem);
+            letter-spacing: -0.05em;
+            color: #0f172a;
+        }
+
+        .subtitle {
+            margin: 0 0 24px;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .error-message {
+            display: none;
+            background: #fef2f2;
+            color: #991b1b;
+            border-left: 4px solid #dc2626;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            font-size: 0.92rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .form-group input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 16px;
+            background: white;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(217, 4, 41, 0.7);
+            box-shadow: 0 0 0 4px rgba(217, 4, 41, 0.08);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #d90429 0%, #a8001f 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 14px 24px rgba(217, 4, 41, 0.24);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 28px rgba(217, 4, 41, 0.3);
+        }
+
+        .demo-credentials {
+            margin-top: 18px;
+            background: linear-gradient(180deg, #eff6ff 0%, #f0f9ff 100%);
+            border: 1px solid rgba(59,130,246,0.14);
+            border-radius: 14px;
+            padding: 16px 18px;
+            font-size: 0.85rem;
+            color: #1f2937;
+        }
+
+        .demo-credentials p {
+            margin: 6px 0;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .back-link a {
+            color: #d90429;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        @media (max-width: 840px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel, .form-panel {
+                padding: 28px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="brand-panel">
+            <div class="brand-content">
+                <div class="brand-badge">Painel administrativo</div>
+                <div class="brand-logo">🎓</div>
+                <h2>UNIC GEST</h2>
+                <p>Gerencie estudantes, tarefas, relatórios e indicadores de desempenho sem perder controlo da rotina académica.</p>
+
+                <ul class="brand-meta">
+                    <li>Monitorização em tempo real</li>
+                    <li>Relatórios e exportações</li>
+                    <li>Gestão centralizada</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <div class="login-container-inner">
+                <h3>Entrar</h3>
+                <p class="subtitle">Painel de Administração</p>
+
+                <div id="errorMessage" class="error-message"></div>
+
+                <form id="loginForm" novalidate>
+                    <div class="form-group">
+                            <label for="email">Email ou nº de estudante</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                placeholder="seu.email@unic.ao"
+                            >
+                        </div>
+
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="••••••••"
+                        >
+                    </div>
+
+                    <button type="submit" class="login-btn">Entrar</button>
+                </form>
+
+                <!-- demo credentials removed -->
+
+                <div class="back-link">
+                    <a href="INDEX.html">← Voltar para Página Inicial</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="user-manager.js?v=20260924-1"></script>
+    <script>
+        window.UNIC_LOGIN_CONFIG = {
+            apiUrl: '/api/auth/login',
+            redirectAdmin: 'admin.html',
+            redirectStudent: 'dashboard.html',
+            errorSelector: '#errorMessage',
+            emailFieldId: 'email',
+            passwordFieldId: 'password',
+            defaultError: 'Credenciais inválidas para administrador.'
+        };
+    </script>
+    <script src="login-flow.js?v=20260924-2"></script>
+</body>
+</html>

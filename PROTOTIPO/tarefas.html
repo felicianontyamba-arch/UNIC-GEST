@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Tarefas - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .view-toggle button {
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-toggle button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.65rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+        }
+
+        .list-view {
+            display: none;
+        }
+
+        .list-view.active {
+            display: block;
+        }
+
+        .task-row {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+
+        .task-row.high-priority {
+            border-left-color: var(--danger);
+        }
+
+        .task-row.medium-priority {
+            border-left-color: #f39c12;
+        }
+
+        .task-row.low-priority {
+            border-left-color: var(--success);
+        }
+
+        .task-row-content {
+            flex: 1;
+        }
+
+        .task-row-title {
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text);
+        }
+
+        .task-row-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .task-row-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .task-row-actions button {
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 0.4rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        /* KANBAN VIEW */
+        .kanban-view {
+            display: none;
+            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .kanban-view.active {
+            display: grid;
+        }
+
+        .kanban-column {
+            background: #f5f6fa;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-height: 600px;
+        }
+
+        .kanban-header {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .kanban-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .kanban-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: grab;
+            transition: all 0.3s ease;
+            border-left: 3px solid var(--primary);
+        }
+
+        .kanban-card.high-priority {
+            border-left-color: var(--danger);
+        }
+
+        .kanban-card.medium-priority {
+            border-left-color: #f39c12;
+        }
+
+        .kanban-card.low-priority {
+            border-left-color: var(--success);
+        }
+
+        .kanban-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .kanban-card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .kanban-card-discipline {
+            font-size: 0.8rem;
+            background: rgba(9, 132, 227, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.3rem;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .kanban-card-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .kanban-card-priority {
+            font-weight: 700;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 1024px) {
+            .kanban-view.active {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters-section {
+                grid-template-columns: 1fr;
+            }
+
+            .view-toggle {
+                width: 100%;
+                margin-top: 1rem;
+                margin-left: 0;
+            }
+
+            .task-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-row-actions {
+                width: 100%;
+                margin-top: 0.75rem;
+            }
+
+            .task-row-actions button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html" class="active">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Utilizador</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1>📋 Minhas Tarefas</h1>
+                        <p>Gerencie e acompanhe todas as suas tarefas académicas</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-primary" type="button" onclick="openNewTaskModal()">➕ Nova Tarefa</button>
+                </div>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label>🔍 Pesquisar</label>
+                    <input type="text" id="searchInput" placeholder="Digite o título...">
+                </div>
+                <div class="filter-group">
+                    <label>📚 Disciplina</label>
+                    <select id="disciplineFilter">
+                        <option value="">Todas as disciplinas</option>
+                        <option value="Programação">Programação</option>
+                        <option value="Base de Dados">Base de Dados</option>
+                        <option value="Matemática">Matemática</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>⚡ Prioridade</label>
+                    <select id="priorityFilter">
+                        <option value="">Todas as prioridades</option>
+                        <option value="high">🔴 Alta</option>
+                        <option value="medium">🟠 Média</option>
+                        <option value="low">🟢 Baixa</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>🔄 Estado</label>
+                    <select id="stateFilter">
+                        <option value="">Todos os estados</option>
+                        <option value="pending">Pendente</option>
+                        <option value="in-progress">Em Andamento</option>
+                        <option value="completed">Concluída</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="align-self: flex-end;">
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="switchView('list')" title="Visualizar em lista">📋 Lista</button>
+                        <button class="view-btn" onclick="switchView('kanban')" title="Visualizar em Kanban">📊 Kanban</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIST VIEW -->
+            <div id="listView" class="list-view active">
+                <div id="tasksList"></div>
+            </div>
+
+            <!-- KANBAN VIEW -->
+            <div id="kanbanView" class="kanban-view">
+                <div class="kanban-column">
+                    <div class="kanban-header">📋 Pendentes</div>
+                    <div class="kanban-tasks" id="kanbanPending"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-header">🔄 Em Andamento</div>
+                    <div class="kanban-tasks" id="kanbanInProgress"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-header">✅ Concluídas</div>
+                    <div class="kanban-tasks" id="kanbanCompleted"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="newTaskModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <h2>Nova Tarefa</h2>
+                <button type="button" class="close-btn" onclick="closeNewTaskModal()">&times;</button>
+            </div>
+            <form id="newTaskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Título *</label>
+                    <input id="taskTitle" type="text" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDiscipline">Disciplina *</label>
+                    <select id="taskDiscipline" required>
+                        <option value="">Selecione uma disciplina</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Descrição</label>
+                    <textarea id="taskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskStartDate">Data de início</label>
+                    <input id="taskStartDate" type="date">
+                </div>
+                <div class="form-group">
+                    <label for="taskEndDate">Data de fim</label>
+                    <input id="taskEndDate" type="date">
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Data de entrega *</label>
+                    <input id="taskDueDate" type="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Prioridade</label>
+                    <select id="taskPriority">
+                        <option value="high">Alta</option>
+                        <option value="medium" selected>Média</option>
+                        <option value="low">Baixa</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-save" type="submit">Guardar</button>
+                    <button class="btn-cancel" type="button" onclick="closeNewTaskModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        const storedUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+        const userName = localStorage.getItem('studentName') || storedUser.nome || 'Utilizador';
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userInitial').textContent = userName.charAt(0).toUpperCase();
+
+        const API_URL = (window.location && window.location.origin ? `${window.location.origin}/api` : '/api');
+        let currentCourse = localStorage.getItem('studentCourse') || storedUser.curso || 'Eng. Informática';
+        let currentCourseId = null;
+        let currentSubjects = [];
+        let tasks = [];
+
+        function getToken() {
+            return localStorage.getItem('token') || localStorage.getItem('studentToken');
+        }
+
+        function closeNewTaskModal() {
+            const modal = document.getElementById('newTaskModal');
+            if (modal) modal.style.display = 'none';
+            const form = document.getElementById('newTaskForm');
+            if (form) form.reset();
+        }
+
+        function formatDate(dateValue) {
+            if (!dateValue) return 'Sem data';
+            const date = new Date(dateValue);
+            if (Number.isNaN(date.getTime())) return String(dateValue);
+            return date.toLocaleDateString('pt-AO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function getPriorityLabel(priority) {
+            const icons = { high: '🔴', medium: '🟠', low: '🟢' };
+            const labels = { high: 'Alta', medium: 'Média', low: 'Baixa' };
+            return `${icons[priority] || '⚪'} ${labels[priority] || 'Normal'}`;
+        }
+
+        function getStateLabel(state) {
+            const labels = { pending: 'Pendente', 'in-progress': 'Em progresso', completed: 'Concluída' };
+            return labels[state] || 'Pendente';
+        }
+
+        const disciplineColors = {
+            Programação: '#4f46e5',
+            'Base de Dados': '#0ea5e9',
+            Matemática: '#f59e0b',
+            Física: '#10b981',
+            História: '#ec4899',
+            'Engenharia Informática': '#ef4444',
+            default: '#64748b'
+        };
+
+        function normalizeTask(task) {
+            return {
+                id: task.id,
+                title: task.titulo || task.title,
+                discipline: task.disciplina || (task.curso ? task.curso : 'Geral'),
+                priority: task.prioridade || task.priority || 'medium',
+                state: task.status || task.state || 'pending',
+                date: task.data_prazo || task.date,
+                startDate: task.data_inicio || task.startDate || task.data_prazo || task.date,
+                endDate: task.data_fim || task.endDate || task.data_prazo || task.date,
+                description: task.descricao || task.description || ''
+            };
+        }
+
+        async function loadCurrentCourse() {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/courses`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) return;
+                const courses = await response.json();
+                const storedCourse = localStorage.getItem('studentCourse') || storedUser.curso || currentCourse;
+                let matchingCourse = courses.find((course) => course.nome === storedCourse || course.nome?.includes(storedCourse) || course.codigo === storedCourse);
+
+                if (!matchingCourse && Array.isArray(courses) && courses.length > 0) {
+                    matchingCourse = courses[0];
+                }
+
+                if (matchingCourse) {
+                    currentCourseId = matchingCourse.id;
+                    currentCourse = matchingCourse.nome;
+                    localStorage.setItem('studentCourse', matchingCourse.nome);
+                }
+                if (currentCourseId) {
+                    await loadCourseSubjects(currentCourseId);
+                }
+            } catch (error) {
+                console.warn('Erro ao carregar curso atual:', error);
+            }
+        }
+
+        async function loadCourseSubjects(courseId) {
+            const token = getToken();
+            if (!token || !courseId) {
+                currentSubjects = [];
+                renderSubjectOptions();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/courses/${courseId}/subjects`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    currentSubjects = [];
+                    renderSubjectOptions();
+                    return;
+                }
+                currentSubjects = await response.json();
+                renderSubjectOptions();
+            } catch (error) {
+                console.warn('Erro ao carregar disciplinas do curso:', error);
+                currentSubjects = [];
+                renderSubjectOptions();
+            }
+        }
+
+        function renderSubjectOptions() {
+            const select = document.getElementById('taskDiscipline');
+            if (!select) return;
+            const selectedValue = select.value || (currentSubjects[0]?.nome || '');
+            select.innerHTML = '<option value="">Selecione uma disciplina</option>' + currentSubjects.map(subject => `<option value="${subject.nome}">${subject.nome}</option>`).join('');
+            if (selectedValue) {
+                select.value = selectedValue;
+            }
+            const filter = document.getElementById('disciplineFilter');
+            if (filter) {
+                filter.innerHTML = '<option value="">Todas as disciplinas</option>' + currentSubjects.map(subject => `<option value="${subject.nome}">${subject.nome}</option>`).join('');
+            }
+        }
+
+        async function loadTasks() {
+            const token = getToken();
+            const studentId = localStorage.getItem('studentId') || storedUser.id;
+            if (!token || !studentId) {
+                tasks = [];
+                renderTasksList();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tasks/${studentId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    tasks = [];
+                    renderTasksList();
+                    return;
+                }
+                const data = await response.json();
+                tasks = (Array.isArray(data) ? data : []).map(normalizeTask);
+                localStorage.setItem('tasksUpdatedAt', String(Date.now()));
+                renderTasksList();
+                renderKanban();
+                if (window.refreshCalendarFromTasks) window.refreshCalendarFromTasks();
+            } catch (error) {
+                console.warn('Erro ao carregar tarefas do servidor:', error);
+                tasks = [];
+                renderTasksList();
+            }
+        }
+
+        function renderTasksList() {
+            const container = document.getElementById('tasksList');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const discipline = document.getElementById('disciplineFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const state = document.getElementById('stateFilter').value;
+
+            const filtered = tasks.filter((task) => {
+                const title = (task.title || '').toLowerCase();
+                return (!search || title.includes(search))
+                    && (!discipline || task.discipline === discipline)
+                    && (!priority || task.priority === priority)
+                    && (!state || task.state === state);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-light);">Ainda não há tarefas. Crie as suas duas primeiras tarefas.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map((task) => {
+                const color = disciplineColors[task.discipline] || disciplineColors.default;
+                return `
+                    <div class="task-row ${task.priority}-priority" style="border-left: 5px solid ${color};">
+                        <div class="task-row-content">
+                            <div class="task-row-title">${task.title}</div>
+                            <div class="task-row-meta">
+                                <span>📚 ${task.discipline || 'Geral'}</span>
+                                <span>📅 ${task.startDate && task.endDate ? `${formatDate(task.startDate)} → ${formatDate(task.endDate)}` : formatDate(task.date)}</span>
+                                <span>${getPriorityLabel(task.priority)}</span>
+                                <span class="badge badge-${task.state === 'completed' ? 'success' : (task.state === 'in-progress' ? 'warning' : 'primary')}">${getStateLabel(task.state)}</span>
+                            </div>
+                        </div>
+                        <div class="task-row-actions">
+                            <button class="btn-edit" type="button" onclick="editTask(${task.id})">✏️ Editar</button>
+                            <button class="btn-delete" type="button" onclick="deleteTask(${task.id})">🗑️ Apagar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderKanban() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const discipline = document.getElementById('disciplineFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+
+            const filtered = tasks.filter((task) => {
+                const title = (task.title || '').toLowerCase();
+                return (!search || title.includes(search)) && (!discipline || task.discipline === discipline) && (!priority || task.priority === priority);
+            });
+
+            const states = { pending: 'kanbanPending', 'in-progress': 'kanbanInProgress', completed: 'kanbanCompleted' };
+            Object.values(states).forEach((id) => {
+                document.getElementById(id).innerHTML = '';
+            });
+
+            filtered.forEach((task) => {
+                const containerId = states[task.state] || 'kanbanPending';
+                const container = document.getElementById(containerId);
+                const card = document.createElement('div');
+                card.className = `kanban-card ${task.priority}-priority`;
+                card.innerHTML = `
+                    <div class="kanban-card-title">${task.title}</div>
+                    <div class="kanban-card-discipline">📚 ${task.discipline || 'Geral'}</div>
+                    <div class="kanban-card-date">📅 ${formatDate(task.date)}</div>
+                    <div class="kanban-card-priority">${getPriorityLabel(task.priority)}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function switchView(view) {
+            document.querySelectorAll('.view-btn').forEach((btn) => btn.classList.remove('active'));
+            const activeButton = document.querySelector(`.view-btn[onclick*="'${view}'"]`) || document.querySelector('.view-btn');
+            if (activeButton) activeButton.classList.add('active');
+
+            if (view === 'list') {
+                document.getElementById('listView').classList.add('active');
+                document.getElementById('kanbanView').classList.remove('active');
+                renderTasksList();
+            } else {
+                document.getElementById('listView').classList.remove('active');
+                document.getElementById('kanbanView').classList.add('active');
+                renderKanban();
+            }
+        }
+
+        function editTask(id) {
+            const task = tasks.find((item) => item.id === id);
+            if (!task) return;
+            const title = prompt('Editar título:', task.title);
+            if (title === null) return;
+            task.title = title.trim() || task.title;
+            renderTasksList();
+            renderKanban();
+        }
+
+        function deleteTask(id) {
+            if (confirm('Tem a certeza que deseja apagar esta tarefa?')) {
+                tasks = tasks.filter((t) => t.id !== id);
+                renderTasksList();
+                renderKanban();
+            }
+        }
+
+        async function loadCourseCatalog() {
+            try {
+                const response = await fetch(`${API_URL}/courses`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                if (!response.ok) return;
+
+                const courses = await response.json();
+                const courseCatalogBody = document.getElementById('courseCatalogBody');
+                const subjectSelect = document.getElementById('subjectCourseId');
+
+                if (courseCatalogBody) {
+                    courseCatalogBody.innerHTML = courses.length
+                        ? courses.map((course) => `
+                            <tr>
+                                <td>${course.nome || '—'}</td>
+                                <td>${course.codigo || '—'}</td>
+                                <td>${course.descricao || 'Sem descrição'}</td>
+                            </tr>
+                        `).join('')
+                        : '<tr><td colspan="3" style="text-align:center; color:#64748b; padding:1rem;">Nenhum curso criado.</td></tr>';
+                }
+
+                if (subjectSelect) {
+                    subjectSelect.innerHTML = courses.length
+                        ? '<option value="">Selecione um curso</option>' + courses.map((course) => `<option value="${course.id}">${course.nome}</option>`).join('')
+                        : '<option value="">Nenhum curso disponível</option>';
+                }
+            } catch (error) {
+                console.warn('Erro ao carregar catálogo de cursos:', error);
+            }
+        }
+
+        async function loadSubjectCatalog() {
+            try {
+                const response = await fetch(`${API_URL}/courses`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                if (!response.ok) return;
+
+                const courses = await response.json();
+                const tableBody = document.getElementById('subjectCatalogBody');
+                if (!tableBody) return;
+
+                if (!courses.length) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:1rem;">Nenhuma disciplina criada.</td></tr>';
+                    return;
+                }
+
+                const rows = await Promise.all(courses.map(async (course) => {
+                    const subjectResponse = await fetch(`${API_URL}/courses/${course.id}/subjects`, {
+                        headers: { Authorization: `Bearer ${getToken()}` }
+                    });
+                    if (!subjectResponse.ok) return [];
+                    const subjects = await subjectResponse.json();
+                    return subjects.map((subject) => `
+                        <tr>
+                            <td>${course.nome || '—'}</td>
+                            <td>${subject.nome || '—'}</td>
+                            <td>${subject.codigo || '—'}</td>
+                            <td>${subject.professor || '—'}</td>
+                            <td>${subject.creditos || 0}</td>
+                        </tr>
+                    `);
+                }));
+
+                const flatRows = rows.flat();
+                tableBody.innerHTML = flatRows.length
+                    ? flatRows.join('')
+                    : '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:1rem;">Nenhuma disciplina criada para os cursos disponíveis.</td></tr>';
+            } catch (error) {
+                console.warn('Erro ao carregar disciplinas por curso:', error);
+            }
+        }
+
+        function openNewTaskModal() {
+            const select = document.getElementById('taskDiscipline');
+            if (!currentSubjects.length) {
+                alert('Nenhuma disciplina disponível para este curso.');
+                return;
+            }
+
+            if (select) {
+                renderSubjectOptions();
+                select.value = '';
+            }
+
+            document.getElementById('newTaskModal').style.display = 'block';
+        }
+
+        async function submitNewTask(event) {
+            event.preventDefault();
+
+            const token = getToken();
+            const studentId = localStorage.getItem('studentId') || storedUser.id;
+            const title = document.getElementById('taskTitle').value.trim();
+            const discipline = document.getElementById('taskDiscipline').value;
+            const description = document.getElementById('taskDescription').value.trim();
+            const dueDate = document.getElementById('taskDueDate').value;
+            const priority = document.getElementById('taskPriority').value;
+            const startDate = document.getElementById('taskStartDate')?.value || dueDate;
+            const endDate = document.getElementById('taskEndDate')?.value || dueDate;
+
+            if (!token || !studentId || !title || !discipline || !dueDate) {
+                alert('Preencha o título, disciplina e data para criar a tarefa.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        student_id: Number(studentId),
+                        titulo: title,
+                        descricao: description,
+                        data_inicio: startDate,
+                        data_fim: endDate,
+                        data_prazo: dueDate,
+                        status: 'pendente',
+                        disciplina: discipline,
+                        prioridade: priority
+                    })
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Não foi possível criar a tarefa.');
+                }
+
+                tasks.unshift(normalizeTask(payload.data || payload));
+                localStorage.setItem('tasksUpdatedAt', String(Date.now()));
+                window.dispatchEvent(new CustomEvent('tasksUpdated'));
+                document.getElementById('newTaskForm').reset();
+                closeNewTaskModal();
+                renderTasksList();
+                renderKanban();
+                if (window.refreshCalendarFromTasks) window.refreshCalendarFromTasks();
+            } catch (error) {
+                console.error('Falha ao criar tarefa:', error);
+                alert(error.message || 'Falha ao criar tarefa.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('studentToken');
+            localStorage.removeItem('studentName');
+            localStorage.removeItem('studentCourse');
+            localStorage.removeItem('studentSemester');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            const view = document.getElementById('listView').classList.contains('active') ? 'list' : 'kanban';
+            view === 'list' ? renderTasksList() : renderKanban();
+        });
+
+        document.getElementById('disciplineFilter').addEventListener('change', () => {
+            const view = document.getElementById('listView').classList.contains('active') ? 'list' : 'kanban';
+            view === 'list' ? renderTasksList() : renderKanban();
+        });
+
+        document.getElementById('priorityFilter').addEventListener('change', () => {
+            const view = document.getElementById('listView').classList.contains('active') ? 'list' : 'kanban';
+            view === 'list' ? renderTasksList() : renderKanban();
+        });
+
+        document.getElementById('stateFilter').addEventListener('change', renderTasksList);
+        document.getElementById('newTaskForm').addEventListener('submit', submitNewTask);
+
+        document.getElementById('newTaskModal').addEventListener('click', function (event) {
+            if (event.target === this) closeNewTaskModal();
+        });
+
+        loadCurrentCourse().finally(() => {
+            renderSubjectOptions();
+            loadTasks();
+        });
+    </script>
+    <script src="mobile-menu.js"></script>
+</body>
+</html>

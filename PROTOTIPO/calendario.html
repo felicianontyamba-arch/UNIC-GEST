@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Acadêmico - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html" class="active">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+                <li><a href="definicoes.html">⚙️ Definições</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Carregando...</p>
+                        <p id="userCourse" style="font-size: 0.8rem;">Eng. Informática</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Terminar sessão</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-shell">
+                <div class="page-intro">
+                    <div class="page-icon">📅</div>
+                    <div>
+                        <h1 class="page-title">Calendário Académico</h1>
+                        <p class="page-subtitle">Acompanhe os prazos, entregas e eventos do semestre.</p>
+                    </div>
+                </div>
+
+                <div class="calendar-card">
+                    <div class="calendar-toolbar">
+                        <div class="calendar-nav">
+                            <button class="btn btn-secondary btn-sm" type="button" id="prevMonthBtn" aria-label="Mês anterior">‹</button>
+                            <div class="calendar-month" id="calendarMonth">Mês atual</div>
+                            <button class="btn btn-secondary btn-sm" type="button" id="nextMonthBtn" aria-label="Próximo mês">›</button>
+                        </div>
+                        <div class="calendar-actions">
+                            <select id="disciplineFilter" class="filter-select" aria-label="Filtrar por disciplina">
+                                <option value="all">Todas as disciplinas</option>
+                            </select>
+                            <select id="statusFilter" class="filter-select" aria-label="Filtrar por estado">
+                                <option value="all">Todos os estados</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="em andamento">Em andamento</option>
+                                <option value="concluida">Concluída</option>
+                                <option value="atrasada">Atrasada</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" type="button" id="goToTasksBtn">Ver tarefas</button>
+                            <button class="btn btn-primary btn-sm" type="button" onclick="addCalendarEvent()">+ Adicionar ao Calendário</button>
+                        </div>
+                    </div>
+
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                    <div class="calendar-day-panel" id="calendarDayPanel"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = (window.location && window.location.origin ? `${window.location.origin}/api` : '/api');
+        let calendarTasks = [];
+        const calendarState = {
+            currentMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            selectedDate: formatYmd(new Date())
+        };
+        const disciplineFilter = document.getElementById('disciplineFilter');
+        const statusFilter = document.getElementById('statusFilter');
+
+        const disciplineColors = {
+            Programação: '#4f46e5',
+            'Base de Dados': '#0ea5e9',
+            Matemática: '#f59e0b',
+            Física: '#10b981',
+            História: '#ec4899',
+            'Engenharia Informática': '#ef4444',
+            default: '#64748b'
+        };
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('studentToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('studentCourse');
+            window.location.href = 'login.html';
+        }
+
+        function getToken() {
+            return localStorage.getItem('token') || localStorage.getItem('studentToken');
+        }
+
+        function getStudentId() {
+            const user = (() => {
+                try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+            })();
+            return Number(localStorage.getItem('studentId') || user.id || 0);
+        }
+
+        function formatYmd(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getMonthLabel(date) {
+            return date.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }).replace(/^./, (c) => c.toUpperCase());
+        }
+
+        function taskMatchesDate(task, dateKey) {
+            const dates = [task.data_inicio, task.data_fim, task.data_prazo];
+            return dates.some((value) => typeof value === 'string' && value.startsWith(dateKey));
+        }
+
+        function filterTasksForCalendar(tasks) {
+            const disciplineValue = disciplineFilter ? disciplineFilter.value : 'all';
+            const statusValue = statusFilter ? statusFilter.value : 'all';
+
+            return tasks.filter((task) => {
+                const taskDiscipline = String(task.disciplina || '').trim();
+                const taskStatus = String(task.status || 'pendente').trim().toLowerCase();
+                const matchesDiscipline = disciplineValue === 'all' || taskDiscipline === disciplineValue;
+                const matchesStatus = statusValue === 'all' || taskStatus === statusValue.toLowerCase();
+                return matchesDiscipline && matchesStatus;
+            });
+        }
+
+        function getTasksForDate(dateKey) {
+            return filterTasksForCalendar(calendarTasks).filter((task) => taskMatchesDate(task, dateKey));
+        }
+
+        function renderSelectedDatePanel() {
+            const panel = document.getElementById('calendarDayPanel');
+            if (!panel) return;
+
+            const tasksForSelectedDate = getTasksForDate(calendarState.selectedDate);
+            const formattedLabel = new Date(`${calendarState.selectedDate}T12:00:00`).toLocaleDateString('pt-PT', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }).replace(/^./, (c) => c.toUpperCase());
+
+            const taskMarkup = tasksForSelectedDate.length
+                ? tasksForSelectedDate.map((task) => {
+                    const taskName = task.titulo || 'Tarefa';
+                    const taskDate = task.data_prazo || task.data_fim || task.data_inicio || calendarState.selectedDate;
+                    const color = disciplineColors[task.disciplina] || disciplineColors.default;
+                    return `
+                        <div class="calendar-day-item">
+                            <div>
+                                <strong>${taskName}</strong>
+                                <span>${task.disciplina || 'Sem disciplina'}</span>
+                            </div>
+                            <div class="calendar-day-meta">
+                                <span class="calendar-day-chip" style="background:${color}">${task.status || 'pendente'}</span>
+                                <small>${taskDate}</small>
+                            </div>
+                        </div>
+                    `;
+                }).join('')
+                : '<div class="calendar-empty-state">Sem tarefas para este dia.</div>';
+
+            panel.innerHTML = `
+                <div class="calendar-selected-header">
+                    <h3>${formattedLabel}</h3>
+                    <span class="calendar-summary-badge">${tasksForSelectedDate.length} tarefa(s)</span>
+                </div>
+                <div class="calendar-task-list">${taskMarkup}</div>
+            `;
+        }
+
+        function buildMonthGrid(monthDate) {
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) return;
+
+            grid.innerHTML = '';
+            const dayHeaders = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+            dayHeaders.forEach((dayName) => {
+                const cell = document.createElement('div');
+                cell.className = 'day-header';
+                cell.textContent = dayName;
+                grid.appendChild(cell);
+            });
+
+            const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+            const startOffset = (firstDay.getDay() + 6) % 7;
+            const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+            const prevMonthDays = new Date(monthDate.getFullYear(), monthDate.getMonth(), 0).getDate();
+
+            for (let i = 0; i < startOffset; i++) {
+                const day = prevMonthDays - startOffset + i + 1;
+                const cell = document.createElement('div');
+                cell.className = 'day-cell is-muted';
+                cell.innerHTML = `<span class="day-number">${day}</span>`;
+                grid.appendChild(cell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+                const dateKey = formatYmd(currentDay);
+                const tasksForDay = getTasksForDate(dateKey);
+                const isToday = dateKey === formatYmd(new Date());
+                const isSelected = dateKey === calendarState.selectedDate;
+
+                const cell = document.createElement('div');
+                cell.className = `day-cell ${isToday ? 'is-today' : ''} ${isSelected ? 'is-selected' : ''}`;
+                cell.dataset.date = dateKey;
+                cell.addEventListener('click', () => {
+                    calendarState.selectedDate = dateKey;
+                    renderCalendar();
+                });
+
+                const eventHtml = tasksForDay.slice(0, 2).map((task) => {
+                    const label = (task.titulo || 'Tarefa').slice(0, 12);
+                    const color = disciplineColors[task.disciplina] || disciplineColors.default;
+                    return `<span class="calendar-task" style="background:${color};">${label}</span>`;
+                }).join('');
+                cell.innerHTML = `<span class="day-number">${day}</span>${eventHtml ? `<div class="calendar-task-list">${eventHtml}</div>` : ''}`;
+                grid.appendChild(cell);
+            }
+
+            const totalCells = 42;
+            const renderedCells = startOffset + daysInMonth;
+            for (let day = 1; renderedCells + day - 1 < totalCells; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'day-cell is-muted';
+                cell.innerHTML = `<span class="day-number">${day}</span>`;
+                grid.appendChild(cell);
+            }
+
+            const monthLabel = document.getElementById('calendarMonth');
+            if (monthLabel) {
+                monthLabel.textContent = getMonthLabel(monthDate);
+            }
+        }
+
+        function renderCalendar() {
+            const monthDate = new Date(calendarState.currentMonth.getFullYear(), calendarState.currentMonth.getMonth(), 1);
+            if (disciplineFilter && statusFilter) {
+                const uniqueDisciplines = [...new Set(calendarTasks.map((task) => task.disciplina).filter(Boolean))].sort();
+                const currentDiscipline = disciplineFilter.value || 'all';
+                const currentStatus = statusFilter.value || 'all';
+                disciplineFilter.innerHTML = '<option value="all">Todas as disciplinas</option>' + uniqueDisciplines.map((discipline) => `<option value="${discipline}">${discipline}</option>`).join('');
+                statusFilter.value = ['all', 'pendente', 'em andamento', 'concluida', 'atrasada'].includes(currentStatus) ? currentStatus : 'all';
+                disciplineFilter.value = uniqueDisciplines.includes(currentDiscipline) ? currentDiscipline : 'all';
+            }
+            buildMonthGrid(monthDate);
+            renderSelectedDatePanel();
+        }
+
+        function goToTasks() {
+            const selectedDiscipline = disciplineFilter && disciplineFilter.value !== 'all' ? `?discipline=${encodeURIComponent(disciplineFilter.value)}` : '';
+            const selectedStatus = statusFilter && statusFilter.value !== 'all' ? `${selectedDiscipline ? '&' : '?'}status=${encodeURIComponent(statusFilter.value)}` : '';
+            window.location.href = `tarefas.html${selectedDiscipline}${selectedStatus}`;
+        }
+
+        async function loadCalendarTasks() {
+            const token = getToken();
+            const studentId = getStudentId();
+            if (!token || !studentId) {
+                calendarTasks = [];
+                renderCalendar();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tasks/${studentId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    calendarTasks = [];
+                    renderCalendar();
+                    return;
+                }
+
+                const tasks = await response.json();
+                calendarTasks = Array.isArray(tasks) ? tasks : [];
+                renderCalendar();
+            } catch (error) {
+                console.warn('Erro ao carregar tarefas do calendário:', error);
+                calendarTasks = [];
+                renderCalendar();
+            }
+        }
+
+        function handlePrevMonth() {
+            calendarState.currentMonth = new Date(calendarState.currentMonth.getFullYear(), calendarState.currentMonth.getMonth() - 1, 1);
+            renderCalendar();
+        }
+
+        function handleNextMonth() {
+            calendarState.currentMonth = new Date(calendarState.currentMonth.getFullYear(), calendarState.currentMonth.getMonth() + 1, 1);
+            renderCalendar();
+        }
+
+        window.refreshCalendarFromTasks = loadCalendarTasks;
+
+        function addCalendarEvent() {
+            const title = prompt('Digite o nome do evento académico:', 'Nova entrega');
+            if (!title) return;
+
+            const date = prompt('Digite a data do evento (AAAA-MM-DD):', new Date().toISOString().slice(0, 10));
+            if (!date) return;
+
+            const events = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
+            events.push({ title, date });
+            localStorage.setItem('calendarEvents', JSON.stringify(events));
+            alert(`Evento adicionado: ${title} (${date})`);
+            loadCalendarTasks();
+        }
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'calendarEvents' || event.key === 'studentCourse' || event.key === 'studentId' || event.key === 'user' || event.key === 'tasksUpdatedAt') {
+                loadCalendarTasks();
+            }
+        });
+
+        window.addEventListener('tasksUpdated', () => {
+            loadCalendarTasks();
+        });
+
+        document.getElementById('prevMonthBtn')?.addEventListener('click', () => {
+            calendarState.currentMonth = new Date(calendarState.currentMonth.getFullYear(), calendarState.currentMonth.getMonth() - 1, 1);
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonthBtn')?.addEventListener('click', () => {
+            calendarState.currentMonth = new Date(calendarState.currentMonth.getFullYear(), calendarState.currentMonth.getMonth() + 1, 1);
+            renderCalendar();
+        });
+
+        document.getElementById('disciplineFilter')?.addEventListener('change', () => {
+            renderCalendar();
+        });
+
+        document.getElementById('statusFilter')?.addEventListener('change', () => {
+            renderCalendar();
+        });
+
+        document.getElementById('goToTasksBtn')?.addEventListener('click', () => {
+            goToTasks();
+        });
+
+        loadCalendarTasks();
+        setInterval(loadCalendarTasks, 10000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Meu Progresso - UNIC Gestor Académico</title>
+    <link rel="stylesheet" href="styles-app.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html" class="active">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Utilizador</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="content-inner" style="max-width:1100px; margin:0 auto; padding:2rem 1.5rem;">
+                <div class="header">
+                    <div class="header-left">
+                        <div class="header-title">
+                            <h1>📊 Meu Progresso</h1>
+                            <p>Acompanhe seu desempenho académico ao longo do semestre</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OVERVIEW STATS -->
+                <div class="stats-overview" style="margin-top:1rem; display:grid; grid-template-columns:repeat(4,1fr); gap:1rem;">
+                    <div class="stat-overview-card card" style="padding:1rem;">
+                        <div class="stat-overview-value"><span id="statCompletion">—</span></div>
+                        <div class="stat-overview-label">Taxa de Conclusão</div>
+                    </div>
+                    <div class="stat-overview-card card" style="padding:1rem;">
+                        <div class="stat-overview-value"><span id="statCompleted">—</span></div>
+                        <div class="stat-overview-label">Tarefas Concluídas</div>
+                    </div>
+                    <div class="stat-overview-card card" style="padding:1rem;">
+                        <div class="stat-overview-value"><span id="statPending">—</span></div>
+                        <div class="stat-overview-label">Em Andamento</div>
+                    </div>
+                    <div class="stat-overview-card card" style="padding:1rem;">
+                        <div class="stat-overview-value"><span id="statOverdue">—</span></div>
+                        <div class="stat-overview-label">Atrasadas</div>
+                    </div>
+                </div>
+
+                <!-- CHARTS -->
+                <div class="chart-grid" style="margin-top:1.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start;">
+                    <div class="chart-card" style="min-height:320px; display:flex; flex-direction:column;">
+                        <div class="chart-card-header"><h3>Estado das tarefas</h3></div>
+                        <canvas id="tasksChart" style="height:260px; display:block;"></canvas>
+                    </div>
+                    <div class="chart-card" style="min-height:320px; display:flex; flex-direction:column;">
+                        <div class="chart-card-header"><h3>Progresso por disciplina</h3></div>
+                        <canvas id="disciplineChart" style="height:260px; display:block;"></canvas>
+                    </div>
+                    <div class="chart-card wide" style="grid-column:1 / -1; min-height:320px; display:flex; flex-direction:column;">
+                        <div class="chart-card-header"><h3>Evolução do semestre</h3></div>
+                        <canvas id="trendChart" style="height:260px; display:block;"></canvas>
+                    </div>
+                </div>
+
+                <!-- MAIN PROGRESS SECTION -->
+                <div class="progress-section" style="margin-top:1.5rem;">
+                    <div class="progress-section-title">📈 Progresso Geral</div>
+                    <div class="main-progress" style="margin-top:0.75rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Tarefas Concluídas Este Semestre</span>
+                            <span id="progressPercentage" style="color:var(--primary); font-weight:700;">—</span>
+                        </div>
+                        <div style="height:12px; background:#f5f6fa; border-radius:6px; overflow:hidden; margin-top:0.5rem;">
+                            <div id="progressFill" style="height:100%; background:linear-gradient(90deg,var(--primary),var(--primary-dark)); width:0%; border-radius:6px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-details" style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:1rem;">
+                        <div class="detail-item card" style="padding:0.8rem; text-align:center;">
+                            <div class="detail-value" id="detailTotal">—</div>
+                            <div class="detail-label">Tarefas Totais</div>
+                        </div>
+                        <div class="detail-item card" style="padding:0.8rem; text-align:center;">
+                            <div class="detail-value" id="detailCompleted">—</div>
+                            <div class="detail-label">Concluídas</div>
+                        </div>
+                        <div class="detail-item card" style="padding:0.8rem; text-align:center;">
+                            <div class="detail-value" id="detailPending">—</div>
+                            <div class="detail-label">Pendentes</div>
+                        </div>
+                        <div class="detail-item card" style="padding:0.8rem; text-align:center;">
+                            <div class="detail-value" id="detailOverdue">—</div>
+                            <div class="detail-label">Atrasadas</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROGRESS BY DISCIPLINE -->
+                <div class="progress-section" style="margin-top:1.5rem;">
+                    <div class="progress-section-title">📚 Progresso por Disciplina</div>
+                    <div id="disciplineProgressContainer" style="margin-top:0.75rem;"></div>
+                </div>
+
+                <!-- TIMELINE -->
+                <div class="progress-section" style="margin-top:1.5rem;">
+                    <div class="progress-section-title">⏱️ Histórico de Actividades</div>
+                    <div class="timeline" id="timelineContainer" style="margin-top:0.75rem;"></div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Libs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+    // Organised page script: if token exists, fetch live data; otherwise use demo data.
+    (function(){
+        const API_URL = (window.location && window.location.origin ? `${window.location.origin}/api` : '/api');
+
+        function getStoredSession() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || 'null');
+                const token = localStorage.getItem('token') || localStorage.getItem('studentToken') || localStorage.getItem('adminToken');
+                return { user, token };
+            } catch { return { user: null, token: null }; }
+        }
+
+        const demo = {
+            disciplines: [
+                { name: 'Programação', icon: '💻', completed: 6, total: 8, progress: 75 },
+                { name: 'Base de Dados', icon: '🗄️', completed: 4, total: 6, progress: 67 },
+                { name: 'Matemática', icon: '📐', completed: 6, total: 10, progress: 60 },
+                { name: 'Redes', icon: '🌐', completed: 2, total: 2, progress: 100 },
+                { name: 'Eng. Software', icon: '🔧', completed: 3, total: 7, progress: 43 }
+            ],
+            taskStatus: { labels:['Concluídas','Pendentes','Atrasadas'], values:[18,5,2], colors:['#2e8b57','#f39c12','#d32f2f'] },
+            trend: { labels:['Set 1','Set 2','Set 3','Set 4','Set 5','Set 6'], values:[7,10,12,14,16,18] },
+            timeline:[
+                { date:'Hoje', task:'Concluiu: Trabalho de Programação (Nota: A-)' },
+                { date:'Ontem', task:'Concluiu: Relatório de Base de Dados (Nota: B+)' },
+                { date:'14 Set', task:'Concluiu: Exercício de Matemática (Nota: A)' }
+            ]
+        };
+
+        // DOM helpers
+        function $(sel){ return document.querySelector(sel); }
+        function $all(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+        // renderers
+        function renderDisciplineProgress(discs){
+            const container = document.getElementById('disciplineProgressContainer');
+            if(!container) return;
+            container.innerHTML = discs.map(d=>`
+                <div class="discipline-progress-item" style="margin-bottom:0.8rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-weight:600;">${d.icon} ${d.name}</div>
+                        <div style="font-weight:700; color:var(--primary);">${d.progress}%</div>
+                    </div>
+                    <div style="height:8px; background:#f5f6fa; border-radius:4px; overflow:hidden; margin-top:0.5rem;">
+                        <div style="height:100%; background:var(--primary); width:${d.progress}%; border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:0.9rem; color:var(--text-light); margin-top:0.4rem;">${d.completed} de ${d.total} concluídas</div>
+                </div>
+            `).join('');
+        }
+
+        function renderTimeline(items){
+            const container = document.getElementById('timelineContainer');
+            if(!container) return;
+            container.innerHTML = items.map(it=>`
+                <div class="timeline-item" style="display:flex; gap:0.75rem; margin-bottom:0.75rem;">
+                    <div class="timeline-marker" style="width:8px; height:8px; background:var(--primary); border-radius:50%; margin-top:6px;"></div>
+                    <div class="timeline-content" style="background:#fbfdff; padding:0.75rem; border-radius:6px; flex:1;">
+                        <div class="timeline-date" style="font-weight:700; color:var(--text-light);">${it.date}</div>
+                        <div class="timeline-text" style="margin-top:0.25rem;">${it.task}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let charts = {};
+        function buildCharts(taskStatus, discs, trend){
+            // tasks
+            const tasksCtx = document.getElementById('tasksChart');
+            if(tasksCtx){
+                if(charts.tasks) charts.tasks.destroy();
+                charts.tasks = new Chart(tasksCtx, { type:'doughnut', data:{ labels:taskStatus.labels, datasets:[{ data:taskStatus.values, backgroundColor:taskStatus.colors, borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false } });
+            }
+            // discipline
+            const discCtx = document.getElementById('disciplineChart');
+            if(discCtx){
+                if(charts.discipline) charts.discipline.destroy();
+                charts.discipline = new Chart(discCtx, { type:'bar', data:{ labels:discs.map(d=>d.name), datasets:[{ label:'Conclusão (%)', data:discs.map(d=>d.progress), backgroundColor:discs.map((_,i)=>['#d32f2f','#d94444','#f39c12','#2e8b57','#7a4dff'][i%5]), borderRadius:8 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:100 } }, plugins:{ legend:{ display:false } } } });
+            }
+            // trend
+            const trendCtx = document.getElementById('trendChart');
+            if(trendCtx){
+                if(charts.trend) charts.trend.destroy();
+                charts.trend = new Chart(trendCtx, { type:'line', data:{ labels:trend.labels, datasets:[{ label:'Tarefas concluídas', data:trend.values, borderColor:'#d32f2f', backgroundColor:'rgba(211,47,47,0.12)', fill:true, tension:0.35 }] }, options:{ responsive:true, maintainAspectRatio:false } });
+            }
+        }
+
+        function updateOverview(total, completed, pending, overdue){
+            $('#statCompletion').textContent = total? Math.round((completed/total)*100)+"%": '—';
+            $('#statCompleted').textContent = completed;
+            $('#statPending').textContent = pending;
+            $('#statOverdue').textContent = overdue;
+            $('#progressPercentage').textContent = total? Math.round((completed/total)*100)+"%": '—';
+            $('#progressFill').style.width = total? (Math.round((completed/total)*100)) + '%': '0%';
+            $('#detailTotal').textContent = total;
+            $('#detailCompleted').textContent = completed;
+            $('#detailPending').textContent = pending;
+            $('#detailOverdue').textContent = overdue;
+        }
+
+        // export helpers
+        function exportProgressToPDF(){
+            if(!window.jspdf || !window.jspdf.jsPDF){ alert('PDF library not loaded'); return; }
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p','mm','a4');
+            pdf.text('Relatório de Progresso Académico',14,18);
+            pdf.save('progresso-unic.pdf');
+        }
+        function exportProgressToExcel(){
+            if(!window.XLSX){ alert('Excel library not loaded'); return; }
+            const workbook = XLSX.utils.book_new();
+            const summarySheet = XLSX.utils.aoa_to_sheet([['Indicador','Valor'],['Taxa de conclusão (%)', $('#statCompletion').textContent]]);
+            XLSX.utils.book_append_sheet(workbook, summarySheet, 'Resumo');
+            XLSX.writeFile(workbook, 'progresso-unic.xlsx');
+        }
+
+        function logout(){ localStorage.removeItem('isLoggedIn'); window.location.href='login.html'; }
+
+        // load data: if token present, try API, else use demo
+        async function loadData(){
+            const { user, token } = getStoredSession();
+            if(user && user.nome){ $('#userName').textContent = user.nome; $('#userInitial').textContent = (user.nome||'U').charAt(0).toUpperCase(); }
+
+            if(token){
+                try{
+                    const res = await fetch(`${API_URL}/tasks/${user && user.id ? user.id : ''}`, { headers:{ Authorization:`Bearer ${token}` } });
+                    if(res.ok){
+                        const tasks = await res.json();
+                        // normalize and compute
+                        const normalized = (Array.isArray(tasks)?tasks:[]).map(t=>({
+                            title: t.titulo||t.title||t.name||'Tarefa',
+                            discipline: t.disciplina||t.discipline||'Geral',
+                            dueDate: t.data_prazo||t.data_fim||t.dueDate||t.date||null,
+                            status: (t.status||t.state||'pending').toLowerCase(),
+                            completedAt: t.completedAt||t.data_conclusao||null
+                        }));
+
+                        const total = normalized.length;
+                        const completed = normalized.filter(x=>x.status==='completed').length;
+                        const pending = normalized.filter(x=>x.status!=='completed' && (!x.dueDate || new Date(x.dueDate) >= new Date())).length;
+                        const overdue = normalized.filter(x=>x.status!=='completed' && x.dueDate && new Date(x.dueDate) < new Date()).length;
+
+                        // by discipline
+                        const byDisc = {};
+                        normalized.forEach(t=>{ const name=t.discipline||'Geral'; byDisc[name]=byDisc[name]||{name,completed:0,total:0,icon:'📘'}; byDisc[name].total++; if(t.status==='completed') byDisc[name].completed++; });
+                        const discs = Object.values(byDisc).map(d=>({ name:d.name, icon:d.icon, completed:d.completed, total:d.total, progress:d.total?Math.round((d.completed/d.total)*100):0 }));
+
+                        // trend
+                        const months = {};
+                        normalized.forEach(t=>{ const when = t.completedAt||t.dueDate||null; if(!when) return; const dt=new Date(when); if(isNaN(dt)) return; const key=`${dt.getFullYear()}-${('0'+(dt.getMonth()+1)).slice(-2)}`; months[key]=(months[key]||0)+(t.status==='completed'?1:0); });
+                        const sorted = Object.keys(months).sort();
+                        const trend = { labels: sorted.map(k=>{ const p=k.split('-'); return `${p[0].slice(-2)}/${p[1]}`; }), values: sorted.map(k=>months[k]) };
+
+                        const taskStatus = { labels:['Concluídas','Pendentes','Atrasadas'], values:[completed,pending,overdue], colors:['#2e8b57','#f39c12','#d32f2f'] };
+
+                        renderDisciplineProgress(discs);
+                        renderTimeline(normalized.filter(x=>x.status==='completed').slice(-8).reverse().map(x=>({ date:x.completedAt||x.dueDate||'', task:`Concluiu: ${x.title}` })));
+                        buildCharts(taskStatus, discs, trend);
+                        updateOverview(total, completed, pending, overdue);
+                        return;
+                    }
+                }catch(e){ console.warn('API load failed, falling back to demo', e); }
+            }
+
+            // fallback demo
+            const discs = demo.disciplines;
+            renderDisciplineProgress(discs);
+            renderTimeline(demo.timeline);
+            buildCharts(demo.taskStatus, discs, demo.trend);
+            updateOverview(demo.disciplines.reduce((s,d)=>s+d.total,0), demo.taskStatus.values[0], demo.taskStatus.values[1], demo.taskStatus.values[2]);
+        }
+
+        // init
+        loadData();
+
+        // expose export functions to buttons (if you add buttons later)
+        window.exportProgressToPDF = exportProgressToPDF;
+        window.exportProgressToExcel = exportProgressToExcel;
+        window.logout = logout;
+    })();
+    </script>
+
+    <script src="mobile-menu.js"></script>
+</body>
+</html>

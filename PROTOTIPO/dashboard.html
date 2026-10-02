@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UNIC Gestor Académico</title>
+    <link rel="stylesheet" href="styles-app.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="deadlineToastContainer" class="deadline-toast-container" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" class="active">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+                <li><a href="links.html">🔗 Links Úteis</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+                <li><a href="definicoes.html">⚙️ Definições</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Utilizador</p>
+                        <p id="userCourse" style="font-size: 0.8rem;">Eng. Informática</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Terminar sessão</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1 id="greeting">Olá, Utilizador! 👋</h1>
+                        <p>Aqui está o resumo das suas actividades académicas.</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Pesquisar tarefas...">
+                    </div>
+                    <div class="header-icons">
+                        <button class="icon-button" title="Notificações" onclick="window.location.href='notificacoes.html'">
+                            🔔
+                            <span class="notification-badge" id="notificationCount">3</span>
+                        </button>
+                        <button class="icon-button" title="Perfil" onclick="window.location.href='perfil.html'">👤</button>
+                    </div>
+                </div>
+            </div>
+
+            <section class="hero-banner">
+                <div>
+                    <div class="eyebrow">Resumo geral</div>
+                    <h2>Gestão académica em um único painel</h2>
+                    <p>Veja rapidamente as suas entregas, o progresso e os momentos que exigem atenção para manter a rotina organizada.</p>
+                </div>
+                <div class="hero-badges">
+                    <span class="metric-chip">18 concluídas</span>
+                    <span class="metric-chip">5 em curso</span>
+                    <span class="metric-chip">2 urgentes</span>
+                </div>
+            </section>
+
+            <!-- STAT CARDS -->
+            <div class="grid grid-4">
+                <div class="stat-card pending">
+                    <div class="stat-value" id="pendingCount">12</div>
+                    <div class="stat-label">📋 Pendentes</div>
+                </div>
+                <div class="stat-card in-progress">
+                    <div class="stat-value" id="inProgressCount">5</div>
+                    <div class="stat-label">🔄 Em Curso</div>
+                </div>
+                <div class="stat-card completed">
+                    <div class="stat-value" id="completedCount">18</div>
+                    <div class="stat-label">✅ Concluídas</div>
+                </div>
+                <div class="stat-card overdue">
+                    <div class="stat-value" id="overdueCount">2</div>
+                    <div class="stat-label">⚠️ Atrasadas</div>
+                </div>
+            </div>
+
+            <!-- PRÓXIMAS ENTREGAS -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2>📅 Próximas Entregas</h2>
+                    <button class="btn btn-primary btn-sm" onclick="openNewTaskModal()">+ Nova tarefa</button>
+                </div>
+                <div class="card-body">
+                    <div id="upcomingTasksList">
+                        <div style="text-align: center; padding: 2rem; color: var(--text-light);">
+                            Carregando tarefas...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROGRESSO ACADÉMICO -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📊 Progresso Académico</h2>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600;">Tarefas Concluídas</span>
+                            <span style="color: var(--primary); font-weight: 700;" id="progressPercentage">78%</span>
+                        </div>
+                        <div style="height: 12px; background-color: #f5f6fa; border-radius: 6px; overflow: hidden;">
+                            <div style="height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%); width: 78%; border-radius: 6px;"></div>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;">
+                            <span id="progressDetails">18 de 23 tarefas concluídas</span>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <h3 style="font-size: 1rem; margin-bottom: 1rem;">Por Disciplina</h3>
+                        <div id="disciplineProgress">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Programação</div>
+                                    <div style="height: 8px; background-color: #f5f6fa; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; background: var(--primary); width: 90%;"></div>
+                                    </div>
+                                </div>
+                                <span style="margin-left: 1rem; font-weight: 700; color: var(--primary); white-space: nowrap;">90%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Base de Dados</div>
+                                    <div style="height: 8px; background-color: #f5f6fa; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; background: var(--primary); width: 70%;"></div>
+                                    </div>
+                                </div>
+                                <span style="margin-left: 1rem; font-weight: 700; color: var(--primary); white-space: nowrap;">70%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Matemática</div>
+                                    <div style="height: 8px; background-color: #f5f6fa; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; background: var(--primary); width: 60%;"></div>
+                                    </div>
+                                </div>
+                                <span style="margin-left: 1rem; font-weight: 700; color: var(--primary); white-space: nowrap;">60%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL NOVA TAREFA -->
+    <div id="newTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Nova Tarefa</h2>
+                <button class="modal-close" onclick="closeNewTaskModal()">✕</button>
+            </div>
+            <form id="newTaskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Título *</label>
+                    <input type="text" id="taskTitle" required placeholder="Ex: Trabalho de Programação">
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Descrição</label>
+                    <textarea id="taskDescription" placeholder="Descreva os detalhes da tarefa..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskDiscipline">Disciplina *</label>
+                        <select id="taskDiscipline" required>
+                            <option value="">Selecione...</option>
+                            <option value="Programação">Programação</option>
+                            <option value="Base de Dados">Base de Dados</option>
+                            <option value="Matemática">Matemática</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDueDate">Data de Entrega *</label>
+                        <input type="date" id="taskDueDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prioridade</label>
+                        <select id="taskPriority" title="Prioridade da tarefa">
+                            <option value="low">🟢 Baixa</option>
+                            <option value="medium" selected>🟠 Média</option>
+                            <option value="high">🔴 Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="taskState" title="Estado da tarefa">
+                            <option value="pending" selected>Pendente</option>
+                            <option value="in-progress">Em Andamento</option>
+                            <option value="completed">Concluída</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewTaskModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Tarefa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = (window.location && window.location.origin ? `${window.location.origin}/api` : '/api');
+        const auth = window.OtempoAuth || {
+            clearSession() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('studentToken');
+                localStorage.removeItem('studentEmail');
+                localStorage.removeItem('studentName');
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                localStorage.removeItem('isLoggedIn');
+                sessionStorage.clear();
+            },
+            getUser() {
+                try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+            }
+        };
+
+        function getStoredSession() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || 'null');
+                const token = localStorage.getItem('token') || localStorage.getItem('studentToken') || localStorage.getItem('adminToken');
+                return { user, token };
+            } catch {
+                return { user: null, token: null };
+            }
+        }
+
+        async function validateSession() {
+            const { user, token } = getStoredSession();
+
+            if (!token || !user || (user.role && user.role.toUpperCase() !== 'STUDENT')) {
+                auth.clearSession();
+                window.location.replace('login.html');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL.replace('/api', '')}/api/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Sessão inválida');
+                }
+
+                const data = await response.json();
+                if (!data.user || (data.user.role && data.user.role.toUpperCase() !== 'STUDENT')) {
+                    throw new Error('Permissão inválida');
+                }
+
+                localStorage.setItem('isLoggedIn', 'true');
+            } catch (error) {
+                auth.clearSession();
+                window.location.replace('login.html');
+            }
+        }
+
+        // Verificar autenticação
+        const { user, token } = getStoredSession();
+        if (!token || !user || (user.role && user.role.toUpperCase() !== 'STUDENT')) {
+            auth.clearSession();
+            window.location.replace('login.html');
+        } else {
+            validateSession();
+        }
+
+        // Carregar dados do utilizador
+        const userName = localStorage.getItem('studentName') || (user && user.nome) || 'Utilizador';
+        const userInitial = userName.charAt(0).toUpperCase();
+
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userInitial').textContent = userInitial;
+        document.getElementById('greeting').textContent = `Olá, ${userName}! 👋`;
+
+        let upcomingTasks = [];
+
+        function formatDashboardDate(dateValue) {
+            if (!dateValue) return 'Sem data';
+            const date = new Date(dateValue);
+            if (Number.isNaN(date.getTime())) return String(dateValue);
+            return date.toLocaleDateString('pt-AO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function normalizeTaskForDashboard(task) {
+            const status = String(task.status || task.state || 'pending').trim().toLowerCase();
+            const dueDate = task.data_prazo || task.data_fim || task.data_inicio || task.date || task.dueDate;
+            return {
+                id: task.id,
+                title: task.titulo || task.title,
+                discipline: task.disciplina || 'Geral',
+                date: formatDashboardDate(dueDate),
+                dueDate: dueDate,
+                priority: task.prioridade || task.priority || 'medium',
+                status
+            };
+        }
+
+        function calculateDaysUntil(dateValue) {
+            if (!dateValue) return Number.MAX_SAFE_INTEGER;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const target = new Date(dateValue);
+            target.setHours(0, 0, 0, 0);
+            const diffMs = target.getTime() - today.getTime();
+            return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        }
+
+        function getDeadlineWarnings(tasks) {
+            const visible = tasks.filter((task) => {
+                const status = String(task.status || 'pending').toLowerCase();
+                if (status === 'completed') return false;
+                const daysLeft = calculateDaysUntil(task.dueDate || task.date);
+                return daysLeft >= 0 && daysLeft <= 3;
+            });
+
+            return visible.sort((a, b) => {
+                const aDays = calculateDaysUntil(a.dueDate || a.date);
+                const bDays = calculateDaysUntil(b.dueDate || b.date);
+                return aDays - bDays;
+            });
+        }
+
+        function showDeadlineAlerts(tasks, studentId) {
+            const warnings = getDeadlineWarnings(tasks);
+            if (!warnings.length) return;
+
+            const storageKey = `deadlineAlerts_${studentId || 'anon'}`;
+            const todayKey = new Date().toISOString().slice(0, 10);
+            const lastAlerts = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            const lastDate = lastAlerts.date;
+            const lastIds = lastAlerts.ids || [];
+
+            const freshWarnings = warnings.filter((task) => {
+                if (lastDate === todayKey) {
+                    return !lastIds.includes(task.id);
+                }
+                return true;
+            });
+
+            if (!freshWarnings.length) return;
+
+            const container = document.getElementById('deadlineToastContainer');
+            if (!container) return;
+
+            freshWarnings.forEach((task) => {
+                const toast = document.createElement('div');
+                const daysLeft = calculateDaysUntil(task.dueDate || task.date);
+                toast.className = 'deadline-toast';
+                toast.innerHTML = `
+                    <div class="deadline-toast-icon">⏰</div>
+                    <div class="deadline-toast-content">
+                        <strong>${task.title}</strong>
+                        <span>${task.discipline}</span>
+                        <small>${daysLeft === 0 ? 'Entrega hoje' : daysLeft === 1 ? 'Falta 1 dia' : `Faltam ${daysLeft} dias`}</small>
+                    </div>
+                    <button type="button" class="deadline-toast-close" aria-label="Fechar alerta">×</button>
+                `;
+
+                toast.querySelector('.deadline-toast-close').addEventListener('click', () => toast.remove());
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.classList.add('is-hiding');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+            });
+
+            localStorage.setItem(storageKey, JSON.stringify({
+                date: todayKey,
+                ids: [...new Set([...lastIds, ...freshWarnings.map((task) => task.id)])]
+            }));
+        }
+
+        async function loadDashboardTasks() {
+            const { token, user } = getStoredSession();
+            const studentId = Number(localStorage.getItem('studentId') || (user && user.id) || 0);
+
+            if (!token || !studentId) {
+                upcomingTasks = [];
+                renderUpcomingTasks();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tasks/${studentId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    upcomingTasks = [];
+                    renderUpcomingTasks();
+                    return;
+                }
+
+                const tasks = await response.json();
+                upcomingTasks = (Array.isArray(tasks) ? tasks : []).map(normalizeTaskForDashboard)
+                    .filter((task) => task.title)
+                    .sort((a, b) => (a.dueDate || a.date).localeCompare(b.dueDate || b.date));
+
+                renderUpcomingTasks();
+                showDeadlineAlerts(upcomingTasks, studentId);
+            } catch (error) {
+                console.warn('Erro ao carregar tarefas do dashboard:', error);
+                upcomingTasks = [];
+                renderUpcomingTasks();
+            }
+        }
+
+        function renderUpcomingTasks() {
+            const container = document.getElementById('upcomingTasksList');
+            if (!container) return;
+
+            const visibleTasks = upcomingTasks.slice(0, 5);
+            if (!visibleTasks.length) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-light);">Nenhuma tarefa próxima para recordar.</div>';
+                return;
+            }
+
+            let html = '';
+
+            visibleTasks.forEach(task => {
+                const priorityIcon = task.priority === 'high' ? '🔴' : (task.priority === 'medium' ? '🟠' : '🟢');
+                const priorityClass = task.priority === 'high' ? 'high' : (task.priority === 'medium' ? 'medium' : 'low');
+                const priorityText = task.priority === 'high' ? 'Alta' : (task.priority === 'medium' ? 'Média' : 'Baixa');
+
+                html += `
+                    <div class="task-item">
+                        <div class="task-main">
+                            <strong>${task.title}</strong>
+                            <span class="task-meta">${task.discipline}</span>
+                        </div>
+                        <div class="task-side">
+                            <span class="task-meta">📅 ${task.date}</span>
+                            <span class="priority-pill ${priorityClass}">${priorityIcon} ${priorityText}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        loadDashboardTasks();
+
+        // Modal de nova tarefa
+        function openNewTaskModal() {
+            document.getElementById('newTaskModal').classList.add('active');
+        }
+
+        function closeNewTaskModal() {
+            document.getElementById('newTaskModal').classList.remove('active');
+            document.getElementById('newTaskForm').reset();
+        }
+
+        document.getElementById('newTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const discipline = document.getElementById('taskDiscipline').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const priority = document.getElementById('taskPriority').value;
+            const state = document.getElementById('taskState').value;
+
+            if (!title || !discipline || !dueDate) {
+                alert('Preencha pelo menos o título, disciplina e data de entrega.');
+                return;
+            }
+
+            upcomingTasks.unshift({
+                id: Date.now(),
+                title,
+                discipline,
+                date: new Date(dueDate).toLocaleDateString('pt-AO', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                priority,
+                description,
+                state
+            });
+
+            alert('Tarefa criada com sucesso!');
+            closeNewTaskModal();
+            renderUpcomingTasks();
+        });
+
+        // Fechar modal ao clicar fora
+        document.getElementById('newTaskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNewTaskModal();
+            }
+        });
+
+        // Logout
+        function logout() {
+            auth.clearSession();
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('studentCourse');
+            localStorage.removeItem('studentSemester');
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="mobile-menu.js"></script>
+</body>
+</html>

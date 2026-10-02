@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gerenciar Senhas</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        :root {
+            --primary: #0984e3;
+            --success: #00b894;
+            --danger: #d63031;
+            --text: #2d3436;
+            --text-light: #636e72;
+            --bg-light: #f8f9fa;
+            --border: #dfe6e9;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .header h1 {
+            color: var(--text);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-light);
+        }
+
+        .content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #00a86b 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-light);
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-light);
+        }
+
+        tbody tr:hover {
+            background: #f0f3f7;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(0, 184, 148, 0.1);
+            color: #00b894;
+            border: 1px solid rgba(0, 184, 148, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(214, 48, 49, 0.1);
+            color: #d63031;
+            border: 1px solid rgba(214, 48, 49, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header h2 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-header p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .password-box {
+            background: #f0f3f7;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .password-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .password-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--success);
+            background: white;
+            padding: 1rem;
+            border-radius: 0.3rem;
+            margin-bottom: 1rem;
+            word-break: break-all;
+            text-align: center;
+        }
+
+        .instructions {
+            background: rgba(0, 184, 148, 0.1);
+            padding: 1rem;
+            border-radius: 0.3rem;
+            font-size: 0.9rem;
+            color: #00b894;
+            line-height: 1.8;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-logout {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--danger) 0%, #e17055 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(214, 48, 49, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 4px solid var(--bg-light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Gerenciar Senhas de Estudantes</h1>
+            <p>Clique em "Gerar Senha" para criar uma senha aleatória - Será guardada no XAMPP</p>
+        </div>
+
+        <div class="content">
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="🔍 Pesquisar...">
+                </div>
+            </div>
+
+            <div id="loadingDiv" class="loading">
+                <div class="spinner"></div>
+                <p>Carregando...</p>
+            </div>
+
+            <table id="studentsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Curso</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔐 Gerar Senha</h2>
+                <p id="studentInfo"></p>
+            </div>
+
+            <div id="generatingDiv" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Gerando senha...</p>
+            </div>
+
+            <div id="resultDiv" style="display: none;">
+                <div class="password-box">
+                    <span class="password-label">Senha Gerada:</span>
+                    <div class="password-value" id="passwordValue"></div>
+                    <div class="instructions">
+                        <strong>📋 Copie e compartilhe com o estudante!</strong><br>
+                        O estudante usará esta senha para fazer login.<br>
+                        A senha foi criptografada e guardada no XAMPP.
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+                <button class="btn btn-success" id="copyBtn" onclick="copyPassword()" style="display: none;">📋 Copiar Senha</button>
+                <button class="btn btn-success" id="pdfBtn" onclick="downloadPDF()" style="display: none; background: linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%);">📄 Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+
+    <script>
+        let students = [];
+        let currentPassword = null;
+        let currentStudentId = null;
+        const token = localStorage.getItem('token');
+
+        if (!token) window.location.href = 'admin-login.html';
+
+        async function loadStudents() {
+            try {
+                const response = await fetch('/api/password/admin/students-password-management', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Erro ao carregar');
+
+                students = await response.json();
+                displayStudents(students);
+                document.getElementById('loadingDiv').style.display = 'none';
+                document.getElementById('studentsTable').style.display = 'table';
+            } catch (error) {
+                showError('❌ ' + error.message);
+            }
+        }
+
+        function displayStudents(data) {
+            const tbody = document.getElementById('studentsBody');
+            tbody.innerHTML = '';
+
+            data.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.nome}</td>
+                        <td>${s.email}</td>
+                        <td>${s.curso}</td>
+                        <td>
+                            <button class="btn btn-success" onclick="openModal(${s.id}, '${s.nome}', '${s.email}')">
+                                Gerar Senha
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            const q = e.target.value.toLowerCase();
+            const filtered = students.filter(s => s.nome.toLowerCase().includes(q) || s.email.toLowerCase().includes(q));
+            displayStudents(filtered);
+        });
+
+        function openModal(studentId, name, email) {
+            currentStudentId = studentId;
+            document.getElementById('studentInfo').textContent = `${name} (${email})`;
+            document.getElementById('generatingDiv').style.display = 'block';
+            document.getElementById('resultDiv').style.display = 'none';
+            document.getElementById('copyBtn').style.display = 'none';
+            document.getElementById('pdfBtn').style.display = 'none';
+            document.getElementById('passwordModal').classList.add('show');
+
+            generatePassword(studentId, name);
+        }
+
+        function generatePassword(studentId, name) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let pwd = '';
+            for (let i = 0; i < 10; i++) {
+                pwd += chars[Math.floor(Math.random() * chars.length)];
+            }
+
+            fetch('/api/password/admin/change-student-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ studentId, newPassword: pwd })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.error);
+                
+                currentPassword = pwd;
+                document.getElementById('generatingDiv').style.display = 'none';
+                document.getElementById('resultDiv').style.display = 'block';
+                document.getElementById('passwordValue').textContent = pwd;
+                document.getElementById('copyBtn').style.display = 'inline-block';
+                document.getElementById('pdfBtn').style.display = 'inline-block';
+                
+                showSuccess(`✅ Senha de ${name} gerada e guardada!`);
+            })
+            .catch(err => {
+                showError('❌ ' + err.message);
+                closeModal();
+            });
+        }
+
+        function copyPassword() {
+            navigator.clipboard.writeText(currentPassword);
+            showSuccess('📋 Copiado!');
+        }
+
+        function downloadPDF() {
+            fetch('/api/password/admin/generate-password-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ studentId: currentStudentId })
+            })
+            .then(r => r.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Credenciais_${new Date().getTime()}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                showSuccess('📄 PDF descarregado com sucesso!');
+            })
+            .catch(err => {
+                showError('❌ ' + err.message);
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('passwordModal').classList.remove('show');
+        }
+
+        function showSuccess(msg) {
+            const a = document.getElementById('successAlert');
+            a.textContent = msg;
+            a.classList.add('show');
+            setTimeout(() => a.classList.remove('show'), 3000);
+        }
+
+        function showError(msg) {
+            const a = document.getElementById('errorAlert');
+            a.textContent = msg;
+            a.classList.add('show');
+            setTimeout(() => a.classList.remove('show'), 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'admin-login.html';
+        }
+
+        document.getElementById('passwordModal').addEventListener('click', (e) => {
+            if (e.target.id === 'passwordModal') closeModal();
+        });
+
+        loadStudents();
+    </script>
+</body>
+</html>

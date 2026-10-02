@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações - UNIC</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        .notifications-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0;
+            background: white;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-button:hover {
+            background-color: #f5f6fa;
+        }
+
+        .notifications-list {
+            display: none;
+        }
+
+        .notifications-list.active {
+            display: block;
+        }
+
+        .notification-item {
+            background: white;
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .notification-item.unread {
+            background: linear-gradient(135deg, rgba(9, 132, 227, 0.05) 0%, rgba(9, 132, 227, 0) 100%);
+        }
+
+        .notification-item.urgent {
+            border-left-color: var(--danger);
+        }
+
+        .notification-item.upcoming {
+            border-left-color: #f39c12;
+        }
+
+        .notification-item.completed {
+            border-left-color: var(--success);
+        }
+
+        .notification-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateX(4px);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification-task {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .notification-time {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .notification-actions button {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 0.4rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .notification-actions button:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .notification-actions button.read {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .notification-actions button.read.success {
+            background: linear-gradient(135deg, #1f9d73 0%, #23b574 100%);
+            border-color: #1f9d73;
+            animation: pulseSuccess 0.45s ease;
+        }
+
+        .empty-notifications {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .priority-high {
+            background: rgba(214, 48, 49, 0.1);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+        }
+
+        .priority-low {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--success);
+        }
+
+        .notification-count {
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .mark-all-read {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 6px 18px rgba(40, 40, 40, 0.06);
+        }
+
+        .mark-all-read:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(211, 47, 47, 0.18);
+        }
+
+        .mark-all-read:active {
+            transform: scale(0.98);
+        }
+
+        .mark-all-read.success {
+            background: linear-gradient(135deg, #1f9d73 0%, #23b574 100%);
+            color: white;
+            border-color: #1f9d73;
+            animation: pulseSuccess 0.5s ease;
+        }
+
+        @keyframes pulseSuccess {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.04); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .notifications-tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                text-align: left;
+            }
+
+            .notification-item {
+                flex-direction: column;
+            }
+
+            .notification-actions {
+                width: 100%;
+            }
+
+            .notification-actions button {
+                flex: 1;
+            }
+
+            .notification-meta {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC</h2>
+                <p>Gestor Académico</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">🏠 Dashboard</a></li>
+                <li><a href="tarefas.html">📋 Minhas Tarefas</a></li>
+                <li><a href="disciplinas.html">📚 Disciplinas</a></li>
+                <li><a href="calendario.html">📅 Calendário</a></li>
+                <li><a href="notificacoes.html" class="active">🔔 Notificações</a></li>
+                <li><a href="progresso.html">📊 Meu Progresso</a></li>
+                <li><a href="medias.html">🎓 Minhas Médias</a></li>
+            </ul>
+
+            <div class="sidebar-divider"></div>
+
+            <ul class="sidebar-menu">
+                <li><a href="perfil.html">👤 Meu Perfil</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="userInitial">F</div>
+                    <div class="sidebar-user-info">
+                        <p id="userName" style="font-weight: 600;">Utilizador</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1>🔔 Notificações</h1>
+                        <p>Acompanhe todos os alertas e lembretes sobre suas tarefas</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="notifications-tabs">
+                <button class="tab-button active" data-tab="all" onclick="switchTab('all')">
+                    📬 Todas
+                    <span class="notification-count" style="margin-left: auto;">8</span>
+                </button>
+                <button class="tab-button" data-tab="urgent" onclick="switchTab('urgent')">
+                    🔴 Urgentes
+                    <span class="notification-count" style="margin-left: auto;">3</span>
+                </button>
+                <button class="tab-button" data-tab="upcoming" onclick="switchTab('upcoming')">
+                    ⏰ Próximas
+                    <span class="notification-count" style="margin-left: auto;">2</span>
+                </button>
+                <button class="tab-button" data-tab="completed" onclick="switchTab('completed')">
+                    ✅ Concluídas
+                    <span class="notification-count" style="margin-left: auto;">3</span>
+                </button>
+            </div>
+
+            <!-- MARK ALL READ -->
+            <button class="mark-all-read" onclick="markAllAsRead()">
+                ✓ Marcar tudo como lido
+            </button>
+
+            <!-- ALL NOTIFICATIONS -->
+            <div id="allNotifications" class="notifications-list active">
+                <!-- Carregado via JavaScript -->
+            </div>
+
+            <!-- URGENT NOTIFICATIONS -->
+            <div id="urgentNotifications" class="notifications-list">
+                <!-- Carregado via JavaScript -->
+            </div>
+
+            <!-- UPCOMING NOTIFICATIONS -->
+            <div id="upcomingNotifications" class="notifications-list">
+                <!-- Carregado via JavaScript -->
+            </div>
+
+            <!-- COMPLETED NOTIFICATIONS -->
+            <div id="completedNotifications" class="notifications-list">
+                <!-- Carregado via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Verificar autenticação
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        // Carregar dados do utilizador
+        const storedUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+        const userName = localStorage.getItem('studentName') || storedUser.nome || 'Utilizador';
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userInitial').textContent = userName.charAt(0).toUpperCase();
+
+        // Carregar notificações da API (fallback para demo se falhar)
+        let notifications = [];
+        const demoNotifications = [
+            {
+                id: 1,
+                type: 'urgent',
+                icon: '⚠️',
+                title: 'Trabalho de Programação atrasado',
+                task: 'Trabalho de Programação - Programação',
+                deadline: '16 Set',
+                time: 'Há 2 dias',
+                priority: 'high',
+                read: false
+            },
+            {
+                id: 2,
+                type: 'urgent',
+                icon: '🔴',
+                title: 'Prazos próximos',
+                task: 'Relatório de Base de Dados - Base de Dados',
+                deadline: '18 Set',
+                time: 'Há 1 dia',
+                priority: 'high',
+                read: false
+            }
+        ];
+
+        async function loadNotifications() {
+            try {
+                const token = localStorage.getItem('token') || '';
+                const res = await fetch('/api/notifications', {
+                    headers: token ? { 'Authorization': token } : {}
+                });
+
+                if (!res.ok) throw new Error('API responded with ' + res.status);
+
+                notifications = await res.json();
+            } catch (err) {
+                console.warn('Falha ao carregar notificações da API, usando demo:', err.message);
+                notifications = demoNotifications;
+            }
+
+            // Renderizar após carregar
+            document.getElementById('allNotifications').innerHTML = renderNotifications('all');
+            document.getElementById('urgentNotifications').innerHTML = renderNotifications('urgent');
+            document.getElementById('upcomingNotifications').innerHTML = renderNotifications('upcoming');
+            document.getElementById('completedNotifications').innerHTML = renderNotifications('completed');
+        }
+
+        function renderNotifications(filter = 'all') {
+            let filtered = notifications;
+
+            if (filter === 'urgent') {
+                filtered = notifications.filter(n => n.type === 'urgent');
+            } else if (filter === 'upcoming') {
+                filtered = notifications.filter(n => n.type === 'upcoming');
+            } else if (filter === 'completed') {
+                filtered = notifications.filter(n => n.type === 'completed');
+            }
+
+            const html = filtered.length === 0 
+                ? '<div class="empty-notifications"><div class="empty-icon">📭</div><p>Nenhuma notificação</p></div>'
+                : filtered.map(notification => `
+                    <div class="notification-item ${notification.read ? '' : 'unread'} ${notification.type}">
+                        <div class="notification-icon">${notification.icon}</div>
+                        <div class="notification-content">
+                            <div class="notification-title">
+                                ${notification.title}
+                                <span class="priority-badge priority-${notification.priority}">
+                                    ${notification.priority === 'high' ? 'ALTA' : (notification.priority === 'medium' ? 'MÉDIA' : 'BAIXA')}
+                                </span>
+                            </div>
+                            <div class="notification-task">📚 ${notification.task}</div>
+                            <div class="notification-meta">
+                                <span class="notification-time">📅 ${notification.deadline}</span>
+                                <span>${notification.time}</span>
+                            </div>
+                        </div>
+                        <div class="notification-actions">
+                            ${!notification.read ? `<button class="read" onclick="markAsRead(${notification.id})">✓ Marcar</button>` : ''}
+                            <button onclick="deleteNotification(${notification.id})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            return html;
+        }
+
+        function getActiveTab() {
+            const activeButton = document.querySelector('.tab-button.active');
+            return activeButton ? activeButton.dataset.tab : 'all';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+
+            document.querySelectorAll('.notifications-list').forEach(list => {
+                list.classList.remove('active');
+            });
+
+            let containerId;
+            switch (tab) {
+                case 'urgent':
+                    containerId = 'urgentNotifications';
+                    break;
+                case 'upcoming':
+                    containerId = 'upcomingNotifications';
+                    break;
+                case 'completed':
+                    containerId = 'completedNotifications';
+                    break;
+                default:
+                    containerId = 'allNotifications';
+            }
+
+            const activeList = document.getElementById(containerId);
+            activeList.classList.add('active');
+            activeList.innerHTML = renderNotifications(tab);
+        }
+
+        function markAsRead(id) {
+            const notification = notifications.find(n => n.id === id);
+            if (!notification) return;
+
+            notification.read = true;
+
+            const button = document.querySelector(`button[onclick="markAsRead(${id})"]`);
+            if (button) {
+                button.classList.add('success');
+                button.textContent = '✓ Marcado';
+                setTimeout(() => {
+                    button.classList.remove('success');
+                    button.textContent = '✓ Marcar';
+                    switchTab(getActiveTab());
+                }, 700);
+                return;
+            }
+
+            switchTab(getActiveTab());
+        }
+
+        function markAllAsRead() {
+            notifications.forEach(n => n.read = true);
+
+            const button = document.querySelector('.mark-all-read');
+            if (button) {
+                button.classList.add('success');
+                button.textContent = '✓ Tudo marcado como lido';
+                setTimeout(() => {
+                    button.classList.remove('success');
+                    button.textContent = '✓ Marcar tudo como lido';
+                }, 1200);
+            }
+
+            switchTab(getActiveTab());
+        }
+
+        function deleteNotification(id) {
+            const index = notifications.findIndex(n => n.id === id);
+            if (index !== -1) {
+                notifications.splice(index, 1);
+                switchTab(getActiveTab());
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+
+        // Renderizar inicial a partir da API
+        loadNotifications();
+    </script>
+    <script src="mobile-menu.js"></script>
+</body>
+</html>

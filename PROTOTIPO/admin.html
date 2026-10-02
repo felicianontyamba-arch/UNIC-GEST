@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - UNIC GEST</title>
+    <link rel="stylesheet" href="styles-app.css">
+    <style>
+        :root {
+            --panel: #ffffff;
+            --panel-soft: #f8fafc;
+            --text-dark: #111827;
+            --text-light: #64748b;
+            --border: #e7eaf0;
+        }
+
+        body {
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            background: #f5f7fb;
+        }
+
+        .sidebar {
+            width: 250px;
+            min-width: 250px;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 1.2rem 0 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 0.5rem 1.2rem 1rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            font-size: 2.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .sidebar-header h2 {
+            color: #f87171;
+            font-size: 1.4rem;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0.75rem 0;
+        }
+
+        .sidebar-menu li {
+            margin: 0.2rem 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            text-decoration: none;
+            color: #dce6f5;
+            padding: 0.8rem 0.9rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: linear-gradient(90deg, #ef4444 0%, #d90429 100%);
+            color: white;
+            transform: translateX(1px);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            border-radius: 1rem;
+            padding: 1.2rem 1.5rem;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            margin-bottom: 1.5rem;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: clamp(1.6rem, 2vw, 2.2rem);
+            letter-spacing: -0.04em;
+            color: var(--text-dark);
+        }
+
+        .logout-btn,
+        .btn-add,
+        .btn-export,
+        .btn-save,
+        .btn-edit,
+        .btn-delete {
+            border: none;
+            border-radius: 0.7rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .logout-btn,
+        .btn-add,
+        .btn-export,
+        .btn-save {
+            background: linear-gradient(135deg, #d90429 0%, #a8001f 100%);
+            color: white;
+        }
+
+        .logout-btn:hover,
+        .btn-add:hover,
+        .btn-export:hover,
+        .btn-save:hover,
+        .btn-edit:hover,
+        .btn-delete:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+        }
+
+        .logout-btn {
+            padding: 0.8rem 1.1rem;
+        }
+
+        .btn-add {
+            padding: 0.75rem 1rem;
+        }
+
+        .btn-export {
+            padding: 0.75rem 1rem;
+            margin-left: 0;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            margin-right: 0.5rem;
+            font-size: 0.78rem;
+            box-shadow: 0 6px 14px rgba(59, 130, 246, 0.22);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.78rem;
+            box-shadow: 0 6px 14px rgba(239, 68, 68, 0.22);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 0.7rem;
+            padding: 0.35rem 0.75rem;
+            margin-right: 0.4rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn-success:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-left: 4px solid #ef4444;
+            border-radius: 1rem;
+            padding: 1.2rem 1.1rem;
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        .stat-value {
+            font-size: 2.1rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.2rem;
+            color: #ef4444;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+            padding: 1.4rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-dark);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #f3f4f6;
+            color: #374151;
+            text-align: left;
+            padding: 0.9rem 1rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dark);
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            width: min(92vw, 520px);
+            margin: 8vh auto;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.45rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            border: 1px solid #dfe7ef;
+            border-radius: 0.7rem;
+            padding: 0.8rem 0.9rem;
+            font: inherit;
+            background: white;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.2rem;
+        }
+
+        .btn-save,
+        .btn-cancel {
+            flex: 1;
+            padding: 0.85rem 1rem;
+        }
+
+        .btn-cancel {
+            background: #e5e7eb;
+            color: #0f172a;
+            border: none;
+            border-radius: 0.7rem;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .success-message {
+            display: none;
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #a7f3d0;
+            border-radius: 0.8rem;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .section-hidden {
+            display: none;
+        }
+
+        .export-copy {
+            margin-bottom: 2rem;
+            color: #6b7280;
+        }
+
+        .export-block {
+            margin-bottom: 2.5rem;
+        }
+
+        .export-title {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-export.excel {
+            background-color: #059669;
+        }
+
+        .btn-export.pdf {
+            background-color: #0891b2;
+        }
+
+        .export-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🎓</div>
+                <h2>UNIC GEST</h2>
+            </div>
+
+            <ul class="sidebar-menu admin-menu">
+                <li><a href="#dashboard" class="active">📊 Dashboard</a></li>
+                <li><a href="#students">👥 Estudantes</a></li>
+                <li><a href="#catalog">📚 Cursos &amp; Disciplinas</a></li>
+                <li><a href="#tasks">✓ Tarefas</a></li>
+                <li><a href="#export">📥 Exportar Dados</a></li>
+                <li><a href="#settings">⚙️ Configurações</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <h1 id="pageTitle">Dashboard Administrativo</h1>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="logout-btn" onclick="logout()">Sair</button>
+                </div>
+            </div>
+
+            <div id="successMessage" class="success-message"></div>
+
+            <section id="dashboardSection">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalStudents">0</div>
+                        <div class="stat-label">Total de Estudantes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTasks">0</div>
+                        <div class="stat-label">Total de Tarefas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedTasks">0</div>
+                        <div class="stat-label">Tarefas Concluídas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingTasks">0</div>
+                        <div class="stat-label">Tarefas Pendentes</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="studentsSection" class="section-hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Gerenciar Estudantes</h2>
+                        <button class="btn-add" onclick="openStudentModal()">+ Novo Estudante</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Curso</th>
+                                    <th>Semestre</th>
+                                    <th>Trimestre</th>
+                                    <th>Disciplinas</th>
+                                    <th>Telefone</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="catalogSection" class="section-hidden">
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div class="card-header">
+                        <h2>Cursos</h2>
+                    </div>
+                    <form id="courseForm">
+                        <div class="form-group">
+                            <label for="courseName">Nome do Curso</label>
+                            <input type="text" id="courseName" placeholder="Ex: Engenharia Informática" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="courseCode">Código</label>
+                            <input type="text" id="courseCode" placeholder="Ex: ENG-INF">
+                        </div>
+                        <div class="form-group">
+                            <label for="courseDescription">Descrição</label>
+                            <textarea id="courseDescription" rows="3" placeholder="Descrição do curso"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">Guardar Curso</button>
+                        </div>
+                    </form>
+                    <div class="table-container" style="margin-top: 1.5rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courseCatalogBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Disciplinas</h2>
+                    </div>
+                    <form id="subjectForm">
+                        <div class="form-group">
+                            <label for="subjectCourseId">Curso</label>
+                            <select id="subjectCourseId" required>
+                                <option value="">Selecione um curso</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="subjectName">Nome da Disciplina</label>
+                            <input type="text" id="subjectName" placeholder="Ex: Programação Web" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subjectCode">Código</label>
+                            <input type="text" id="subjectCode" placeholder="Ex: PW-101">
+                        </div>
+                        <div class="form-group">
+                            <label for="subjectProfessor">Professor</label>
+                            <input type="text" id="subjectProfessor" placeholder="Nome do professor">
+                        </div>
+                        <div class="form-group">
+                            <label for="subjectCredits">Créditos</label>
+                            <input type="number" id="subjectCredits" min="1" value="1">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">Guardar Disciplina</button>
+                        </div>
+                    </form>
+                    <div class="table-container" style="margin-top: 1.5rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Curso</th>
+                                    <th>Disciplina</th>
+                                    <th>Código</th>
+                                    <th>Professor</th>
+                                    <th>Créditos</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjectCatalogBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tasksSection" class="section-hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Todas as Tarefas</h2>
+                    </div>
+                    <div class="table-container">
+                        <table id="tasksTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Estudante</th>
+                                    <th>Título</th>
+                                    <th>Data de Prazo</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tasksTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="exportSection" class="section-hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Exportar Dados</h2>
+                    </div>
+                    <p class="export-copy">
+                        Exporte os dados dos estudantes, tarefas e relatórios de desempenho em múltiplos formatos.
+                    </p>
+
+                    <div class="export-block">
+                        <h3 class="export-title">
+                            📊 Exportar Estudantes
+                        </h3>
+                        <div class="export-buttons">
+                            <button class="btn-export" onclick="exportStudents('csv')">📄 CSV</button>
+                            <button class="btn-export excel" onclick="exportStudents('excel')">📊 Excel</button>
+                            <button class="btn-export pdf" onclick="exportStudents('pdf')">📋 PDF</button>
+                        </div>
+                    </div>
+
+                    <div class="export-block">
+                        <h3 class="export-title">
+                            ✓ Exportar Tarefas
+                        </h3>
+                        <div class="export-buttons">
+                            <button class="btn-export" onclick="exportTasks('csv')">📄 CSV</button>
+                            <button class="btn-export excel" onclick="exportTasks('excel')">📊 Excel</button>
+                            <button class="btn-export pdf" onclick="exportTasks('pdf')">📋 PDF</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="export-title">
+                            📈 Exportar Desempenho
+                        </h3>
+                        <div class="export-buttons">
+                            <button class="btn-export" onclick="exportPerformance('csv')">📄 CSV</button>
+                            <button class="btn-export excel" onclick="exportPerformance('excel')">📊 Excel</button>
+                            <button class="btn-export pdf" onclick="exportPerformance('pdf')">📋 PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Student Modal -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Estudante</h2>
+                <button class="close-btn" onclick="closeStudentModal()">&times;</button>
+            </div>
+            <form id="studentForm">
+                <div class="form-group">
+                    <label for="studentName">Nome Completo</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentEmail">Email</label>
+                    <input type="email" id="studentEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentCourse">Curso</label>
+                    <select id="studentCourse" required>
+                        <option value="">Carregando cursos...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentSubjects">Disciplinas</label>
+                    <select id="studentSubjects" multiple size="6" required>
+                        <option value="">Selecione um curso primeiro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentSemester">Semestre</label>
+                    <select id="studentSemester" required>
+                        <option value="">Selecione um semestre</option>
+                        <option value="1º Semestre">1º Semestre</option>
+                        <option value="2º Semestre">2º Semestre</option>
+                        <option value="3º Semestre">3º Semestre</option>
+                        <option value="4º Semestre">4º Semestre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentTrimester">Trimestre</label>
+                    <select id="studentTrimester" required>
+                        <option value="">Selecione um trimestre</option>
+                        <option value="1º Trimestre">1º Trimestre</option>
+                        <option value="2º Trimestre">2º Trimestre</option>
+                        <option value="3º Trimestre">3º Trimestre</option>
+                        <option value="4º Trimestre">4º Trimestre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentPhone">Telefone</label>
+                    <input type="tel" id="studentPhone">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="closeStudentModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="catalogEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="catalogEditTitle">Editar Registo</h2>
+                <button class="close-btn" type="button" onclick="closeCatalogEditModal()">&times;</button>
+            </div>
+            <form id="catalogEditForm">
+                <input type="hidden" id="catalogEditType">
+                <input type="hidden" id="catalogEditCourseId">
+                <input type="hidden" id="catalogEditSubjectId">
+
+                <div class="form-group">
+                    <label for="catalogEditName">Nome</label>
+                    <input type="text" id="catalogEditName" required>
+                </div>
+
+                <div class="form-group" id="catalogEditCodeGroup">
+                    <label for="catalogEditCode">Código</label>
+                    <input type="text" id="catalogEditCode">
+                </div>
+
+                <div class="form-group" id="catalogEditDescriptionGroup">
+                    <label for="catalogEditDescription">Descrição</label>
+                    <textarea id="catalogEditDescription" rows="3"></textarea>
+                </div>
+
+                <div class="form-group" id="catalogEditProfessorGroup" style="display:none;">
+                    <label for="catalogEditProfessor">Professor</label>
+                    <input type="text" id="catalogEditProfessor">
+                </div>
+
+                <div class="form-group" id="catalogEditCreditsGroup" style="display:none;">
+                    <label for="catalogEditCredits">Créditos</label>
+                    <input type="number" id="catalogEditCredits" min="1" value="1">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Guardar Alterações</button>
+                    <button type="button" class="btn-cancel" onclick="closeCatalogEditModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = (window.location && window.location.origin ? `${window.location.origin}/api` : '/api');
+        const auth = window.OtempoAuth || {
+            clearSession() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                localStorage.removeItem('studentToken');
+                localStorage.removeItem('studentEmail');
+                localStorage.removeItem('studentName');
+                localStorage.removeItem('isLoggedIn');
+                sessionStorage.clear();
+            },
+            getUser() {
+                try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+            }
+        };
+
+        function getStoredSession() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || 'null');
+                const token = localStorage.getItem('token') || localStorage.getItem('adminToken') || localStorage.getItem('studentToken');
+                return { user, token };
+            } catch {
+                return { user: null, token: null };
+            }
+        }
+
+        let { user, token } = getStoredSession();
+
+        async function validateSession() {
+            const current = getStoredSession();
+            token = current.token;
+            user = current.user;
+
+            if (!token || !user || (user.role && user.role.toUpperCase() !== 'ADMIN')) {
+                auth.clearSession();
+                window.location.replace('login.html');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL.replace('/api', '')}/api/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Sessão inválida');
+                }
+
+                const data = await response.json();
+                if (!data.user || (data.user.role && data.user.role.toUpperCase() !== 'ADMIN')) {
+                    throw new Error('Permissão inválida');
+                }
+
+                localStorage.setItem('isLoggedIn', 'true');
+            } catch (error) {
+                auth.clearSession();
+                window.location.replace('login.html');
+            }
+        }
+
+        // Verificar autenticação
+        if (!token || !user || (user.role && user.role.toUpperCase() !== 'ADMIN')) {
+            auth.clearSession();
+            window.location.replace('login.html');
+        } else {
+            validateSession();
+        }
+
+        // Carregar dados do dashboard
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/students`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const students = await response.json();
+
+                document.getElementById('totalStudents').textContent = students.length;
+            } catch (error) {
+                console.error('Erro ao carregar dashboard:', error);
+            }
+        }
+
+        // Carregar estudantes
+        async function loadStudents() {
+            try {
+                const response = await fetch(`${API_URL}/students`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const students = await response.json();
+
+                const tbody = document.getElementById('studentsTableBody');
+                tbody.innerHTML = '';
+
+                students.forEach((student) => {
+                    const row = document.createElement('tr');
+
+                        const parsedDisciplines = (() => {
+                        if (!student.disciplinas) return '—';
+                        try {
+                            const value = typeof student.disciplinas === 'string' ? JSON.parse(student.disciplinas) : student.disciplinas;
+                            return Array.isArray(value) ? value.join(', ') : String(value);
+                        } catch {
+                            return String(student.disciplinas);
+                        }
+                    })();
+
+                    const cells = [
+                        student.id,
+                        student.nome || '—',
+                        student.email || '—',
+                        student.curso || '—',
+                        student.semestre || '—',
+                        student.trimestre || '—',
+                        parsedDisciplines,
+                        student.telefone || 'N/A'
+                    ];
+
+                    cells.forEach((value) => {
+                        const td = document.createElement('td');
+                        td.textContent = value;
+                        row.appendChild(td);
+                    });
+
+                    const actionsCell = document.createElement('td');
+
+                    const passwordBtn = document.createElement('button');
+                    passwordBtn.type = 'button';
+                    passwordBtn.className = 'btn-success';
+                    passwordBtn.textContent = '🔐 Gerar Senha';
+                    passwordBtn.addEventListener('click', (event) => {
+                        generateAndDownloadPDF(student.id, student.nome || 'Estudante', student.email || '', event);
+                    });
+
+                    const editBtn = document.createElement('button');
+                    editBtn.type = 'button';
+                    editBtn.className = 'btn-edit';
+                    editBtn.textContent = 'Editar';
+                    editBtn.addEventListener('click', () => editStudent(student.id));
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.type = 'button';
+                    deleteBtn.className = 'btn-delete';
+                    deleteBtn.textContent = 'Deletar';
+                    deleteBtn.addEventListener('click', () => deleteStudent(student.id));
+
+                    actionsCell.appendChild(passwordBtn);
+                    actionsCell.appendChild(editBtn);
+                    actionsCell.appendChild(deleteBtn);
+
+                    row.appendChild(actionsCell);
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar estudantes:', error);
+            }
+        }
+
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const tasks = await response.json();
+
+                const tbody = document.getElementById('tasksTableBody');
+                tbody.innerHTML = '';
+
+                if (!tasks.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:1.25rem;">Nenhuma tarefa encontrada.</td></tr>';
+                    return;
+                }
+
+                tasks.forEach(task => {
+                    const row = `
+                        <tr>
+                            <td>${task.id}</td>
+                            <td>${task.student_nome || task.student_email || 'N/A'}</td>
+                            <td>${task.titulo}</td>
+                            <td>${task.data_prazo || 'N/A'}</td>
+                            <td>${task.status || 'pendente'}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Erro ao carregar tarefas em tempo real:', error);
+            }
+        }
+
+        function refreshAdminData() {
+            loadDashboard();
+            loadTasks();
+            loadCourseCatalog();
+            loadSubjectCatalog();
+        }
+
+        // Abrir modal de estudante
+        function openStudentModal() {
+            document.getElementById('studentModal').style.display = 'block';
+            document.getElementById('studentForm').reset();
+            document.getElementById('modalTitle').textContent = 'Novo Estudante';
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').style.display = 'none';
+        }
+
+        // Salvar estudante
+        document.getElementById('studentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nome = document.getElementById('studentName').value;
+            const email = document.getElementById('studentEmail').value;
+            const curso = document.getElementById('studentCourse').value;
+            const semestre = document.getElementById('studentSemester').value;
+            const telefone = document.getElementById('studentPhone').value;
+
+            try {
+                const response = await fetch(`${API_URL}/students`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, curso, semestre, telefone })
+                });
+
+                if (response.ok) {
+                    showSuccess('Estudante criado com sucesso!');
+                    closeStudentModal();
+                    loadStudents();
+                } else {
+                    alert('Erro ao criar estudante');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao criar estudante');
+            }
+        });
+
+        // Deletar estudante
+        async function deleteStudent(id) {
+            if (!confirm('Tem certeza que deseja deletar este estudante?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/students/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    showSuccess('Estudante deletado com sucesso!');
+                    loadStudents();
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao deletar estudante');
+            }
+        }
+
+        // Gerar senha + Download PDF
+        async function generateAndDownloadPDF(studentId, studentName, studentEmail, event) {
+            try {
+                const btn = event?.target || event?.currentTarget || document.activeElement;
+                const originalText = btn ? btn.textContent : '🔐 Gerar Senha';
+                if (btn) {
+                    btn.textContent = '⏳ Gerando...';
+                    btn.disabled = true;
+                }
+
+                const response = await fetch('/api/password/admin/generate-password-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ studentId })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao gerar PDF');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Credenciais_${String(studentName || 'Estudante').replace(/\s+/g, '_')}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                showSuccess(`✅ Senha gerada e PDF descarregado para ${studentName}!`);
+                loadStudents();
+
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro ao gerar senha e PDF: ' + error.message);
+                if (event?.target) {
+                    event.target.textContent = '🔐 Gerar Senha';
+                    event.target.disabled = false;
+                }
+            }
+        }
+
+        // Exportar funções
+        async function exportStudents(format = 'csv') {
+            try {
+                const response = await fetch(`${API_URL}/export/students/${format}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const blob = await response.blob();
+                const ext = format === 'excel' ? 'xlsx' : format;
+                downloadFile(blob, `estudantes.${ext}`);
+                showSuccess(`Estudantes exportados com sucesso em ${format.toUpperCase()}!`);
+            } catch (error) {
+                console.error('Erro ao exportar:', error);
+                alert('Erro ao exportar');
+            }
+        }
+
+        async function exportTasks(format = 'csv') {
+            try {
+                const response = await fetch(`${API_URL}/export/tasks/${format}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const blob = await response.blob();
+                const ext = format === 'excel' ? 'xlsx' : format;
+                downloadFile(blob, `tarefas.${ext}`);
+                showSuccess(`Tarefas exportadas com sucesso em ${format.toUpperCase()}!`);
+            } catch (error) {
+                console.error('Erro ao exportar:', error);
+                alert('Erro ao exportar');
+            }
+        }
+
+        async function exportPerformance(format = 'csv') {
+            try {
+                const response = await fetch(`${API_URL}/export/performance/${format}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const blob = await response.blob();
+                const ext = format === 'excel' ? 'xlsx' : format;
+                downloadFile(blob, `relatorio_desempenho.${ext}`);
+                showSuccess(`Relatório de desempenho exportado com sucesso em ${format.toUpperCase()}!`);
+            } catch (error) {
+                console.error('Erro ao exportar:', error);
+                alert('Erro ao exportar');
+            }
+        }
+
+        function downloadFile(blob, filename) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function showSuccess(message) {
+            const div = document.getElementById('successMessage');
+            div.textContent = message;
+            div.style.display = 'block';
+            setTimeout(() => {
+                div.style.display = 'none';
+            }, 3000);
+        }
+
+        function openCatalogEditModal(type, payload) {
+            const modal = document.getElementById('catalogEditModal');
+            const title = document.getElementById('catalogEditTitle');
+            const typeInput = document.getElementById('catalogEditType');
+            const courseIdInput = document.getElementById('catalogEditCourseId');
+            const subjectIdInput = document.getElementById('catalogEditSubjectId');
+            const nameInput = document.getElementById('catalogEditName');
+            const codeInput = document.getElementById('catalogEditCode');
+            const descriptionGroup = document.getElementById('catalogEditDescriptionGroup');
+            const descriptionInput = document.getElementById('catalogEditDescription');
+            const professorGroup = document.getElementById('catalogEditProfessorGroup');
+            const professorInput = document.getElementById('catalogEditProfessor');
+            const creditsGroup = document.getElementById('catalogEditCreditsGroup');
+            const creditsInput = document.getElementById('catalogEditCredits');
+
+            if (!modal || !title || !typeInput || !nameInput) return;
+
+            typeInput.value = type;
+            if (type === 'course') {
+                title.textContent = 'Editar Curso';
+                descriptionGroup.style.display = 'block';
+                professorGroup.style.display = 'none';
+                creditsGroup.style.display = 'none';
+                courseIdInput.value = payload.id;
+                subjectIdInput.value = '';
+                nameInput.value = payload.nome || '';
+                codeInput.value = payload.codigo || '';
+                descriptionInput.value = payload.descricao || '';
+                professorInput.value = '';
+                creditsInput.value = 1;
+            } else {
+                title.textContent = 'Editar Disciplina';
+                descriptionGroup.style.display = 'none';
+                professorGroup.style.display = 'block';
+                creditsGroup.style.display = 'block';
+                courseIdInput.value = payload.courseId;
+                subjectIdInput.value = payload.id;
+                nameInput.value = payload.nome || '';
+                codeInput.value = payload.codigo || '';
+                descriptionInput.value = '';
+                professorInput.value = payload.professor || '';
+                creditsInput.value = payload.creditos || 1;
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeCatalogEditModal() {
+            const modal = document.getElementById('catalogEditModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            document.getElementById('catalogEditForm')?.reset();
+        }
+
+        async function editCourse(courseId) {
+            if (!courseId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/courses`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const courses = await response.json();
+                const course = courses.find((item) => item.id === Number(courseId));
+                if (!course) return;
+
+                openCatalogEditModal('course', course);
+            } catch (error) {
+                console.error('Erro ao carregar curso para edição:', error);
+                alert('Não foi possível carregar os dados do curso para edição.');
+            }
+        }
+
+        async function editSubject(courseId, subjectId) {
+            if (!courseId || !subjectId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/courses/${courseId}/subjects`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const subjects = await response.json();
+                const subject = subjects.find((item) => item.id === Number(subjectId));
+                if (!subject) return;
+
+                openCatalogEditModal('subject', { ...subject, courseId });
+            } catch (error) {
+                console.error('Erro ao carregar disciplina para edição:', error);
+                alert('Não foi possível carregar os dados da disciplina para edição.');
+            }
+        }
+
+        document.getElementById('catalogEditForm')?.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const type = document.getElementById('catalogEditType').value;
+            const name = document.getElementById('catalogEditName').value.trim();
+            const code = document.getElementById('catalogEditCode').value.trim();
+            const description = document.getElementById('catalogEditDescription').value.trim();
+            const professor = document.getElementById('catalogEditProfessor').value.trim();
+            const credits = Number(document.getElementById('catalogEditCredits').value || 1);
+
+            if (!name) {
+                alert('O nome não pode ficar vazio.');
+                return;
+            }
+
+            try {
+                if (type === 'course') {
+                    const response = await fetch(`${API_URL}/courses/${document.getElementById('catalogEditCourseId').value}`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nome: name, codigo: code, descricao: description })
+                    });
+
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(payload.error || 'Erro ao editar o curso.');
+                    }
+
+                    showSuccess('Curso atualizado com sucesso!');
+                } else {
+                    const courseId = document.getElementById('catalogEditCourseId').value;
+                    const subjectId = document.getElementById('catalogEditSubjectId').value;
+
+                    if (!courseId || !subjectId) {
+                        throw new Error('Disciplina inválida para edição.');
+                    }
+
+                    const response = await fetch(`${API_URL}/courses/${courseId}/subjects/${subjectId}`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nome: name, codigo: code, professor, creditos: credits })
+                    });
+
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(payload.error || 'Erro ao editar a disciplina.');
+                    }
+
+                    showSuccess('Disciplina atualizada com sucesso!');
+                }
+
+                closeCatalogEditModal();
+                await loadCourseCatalog();
+                await loadSubjectCatalog();
+            } catch (error) {
+                console.error('Erro ao editar registo:', error);
+                alert(error.message || 'Não foi possível guardar as alterações.');
+            }
+        });
+
+        async function deleteCourse(courseId) {
+            if (!courseId || !confirm('Tem a certeza que deseja eliminar este curso?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/courses/${courseId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Erro ao eliminar o curso.');
+                }
+
+                showSuccess('Curso eliminado com sucesso!');
+                await loadCourseCatalog();
+                await loadSubjectCatalog();
+            } catch (error) {
+                console.error('Erro ao eliminar curso:', error);
+                alert(error.message || 'Não foi possível eliminar o curso.');
+            }
+        }
+
+        async function deleteSubject(courseId, subjectId) {
+            if (!courseId || !subjectId || !confirm('Tem a certeza que deseja eliminar esta disciplina?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/courses/${courseId}/subjects/${subjectId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Erro ao eliminar a disciplina.');
+                }
+
+                showSuccess('Disciplina eliminada com sucesso!');
+                await loadCourseCatalog();
+                await loadSubjectCatalog();
+            } catch (error) {
+                console.error('Erro ao eliminar disciplina:', error);
+                alert(error.message || 'Não foi possível eliminar a disciplina.');
+            }
+        }
+
+        async function loadCourseCatalog() {
+            try {
+                const response = await fetch(`${API_URL}/courses`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Não foi possível carregar os cursos');
+                }
+
+                const courses = await response.json();
+                const courseCatalogBody = document.getElementById('courseCatalogBody');
+                const subjectSelect = document.getElementById('subjectCourseId');
+                const studentSelect = document.getElementById('studentCourse');
+
+                if (courseCatalogBody) {
+                    courseCatalogBody.innerHTML = courses.length
+                        ? courses.map((course) => `
+                            <tr>
+                                <td>${course.nome || '—'}</td>
+                                <td>${course.codigo || '—'}</td>
+                                <td>${course.descricao || 'Sem descrição'}</td>
+                                <td>
+                                    <button type="button" class="btn-edit" onclick="editCourse(${course.id})">Editar</button>
+                                    <button type="button" class="btn-delete" onclick="deleteCourse(${course.id})">Eliminar</button>
+                                </td>
+                            </tr>
+                        `).join('')
+                        : '<tr><td colspan="4" style="text-align:center; color:#64748b; padding:1rem;">Nenhum curso criado.</td></tr>';
+                }
+
+                if (subjectSelect) {
+                    subjectSelect.innerHTML = courses.length
+                        ? '<option value="">Selecione um curso</option>' + courses.map((course) => `<option value="${course.id}">${course.nome}</option>`).join('')
+                        : '<option value="">Nenhum curso disponível</option>';
+                }
+
+                if (studentSelect) {
+                    studentSelect.innerHTML = courses.length
+                        ? '<option value="">Selecione um curso</option>' + courses.map((course) => `<option value="${course.id}" data-name="${course.nome}">${course.nome}</option>`).join('')
+                        : '<option value="">Nenhum curso disponível</option>';
+                    studentSelect.dispatchEvent(new Event('change'));
+                }
+            } catch (error) {
+                console.error('Erro ao carregar catálogo de cursos:', error);
+            }
+        }
+
+        async function loadCourseSubjectsForStudent(courseId) {
+            const studentSubjects = document.getElementById('studentSubjects');
+            if (!studentSubjects) return;
+
+            if (!courseId) {
+                studentSubjects.innerHTML = '<option value="">Selecione um curso primeiro</option>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/courses/${courseId}/subjects`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    studentSubjects.innerHTML = '<option value="">Nenhuma disciplina disponível</option>';
+                    return;
+                }
+
+                const subjects = await response.json();
+                studentSubjects.innerHTML = subjects.length
+                    ? subjects.map((subject) => `<option value="${subject.nome}">${subject.nome}</option>`).join('')
+                    : '<option value="">Nenhuma disciplina disponível</option>';
+            } catch (error) {
+                console.error('Erro ao carregar disciplinas do curso do estudante:', error);
+                studentSubjects.innerHTML = '<option value="">Erro ao carregar disciplinas</option>';
+            }
+        }
+
+        async function loadSubjectCatalog() {
+            try {
+                const response = await fetch(`${API_URL}/courses`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Não foi possível carregar disciplinas');
+                }
+
+                const courses = await response.json();
+                const tableBody = document.getElementById('subjectCatalogBody');
+                if (!tableBody) return;
+
+                if (!courses.length) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:1rem;">Nenhuma disciplina criada.</td></tr>';
+                    return;
+                }
+
+                const subjectRows = await Promise.all(courses.map(async (course) => {
+                    try {
+                        const subjectResponse = await fetch(`${API_URL}/courses/${course.id}/subjects`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (!subjectResponse.ok) return [];
+                        const subjects = await subjectResponse.json();
+                        return subjects.map((subject) => `
+                            <tr>
+                                <td>${course.nome || '—'}</td>
+                                <td>${subject.nome || '—'}</td>
+                                <td>${subject.codigo || '—'}</td>
+                                <td>${subject.professor || '—'}</td>
+                                <td>${subject.creditos || 0}</td>
+                                <td>
+                                    <button type="button" class="btn-edit" onclick="editSubject(${course.id}, ${subject.id})">Editar</button>
+                                    <button type="button" class="btn-delete" onclick="deleteSubject(${course.id}, ${subject.id})">Eliminar</button>
+                                </td>
+                            </tr>
+                        `);
+                    } catch (error) {
+                        return [];
+                    }
+                }));
+
+                const flatRows = subjectRows.flat();
+                tableBody.innerHTML = flatRows.length
+                    ? flatRows.join('')
+                    : '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:1rem;">Nenhuma disciplina criada para os cursos disponíveis.</td></tr>';
+            } catch (error) {
+                console.error('Erro ao carregar disciplinas por curso:', error);
+            }
+        }
+
+        const courseForm = document.getElementById('courseForm');
+        if (courseForm) {
+            courseForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const nome = document.getElementById('courseName')?.value?.trim() || '';
+                const codigo = document.getElementById('courseCode')?.value?.trim() || '';
+                const descricao = document.getElementById('courseDescription')?.value?.trim() || '';
+
+                if (!nome) {
+                    alert('Introduza o nome do curso.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_URL}/courses`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ nome, codigo, descricao })
+                    });
+
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(payload.error || 'Erro ao criar o curso.');
+                    }
+
+                    courseForm.reset();
+                    showSuccess('Curso guardado com sucesso!');
+                    await loadCourseCatalog();
+                    await loadSubjectCatalog();
+                } catch (error) {
+                    console.error('Erro ao guardar curso:', error);
+                    alert(error.message || 'Não foi possível criar o curso.');
+                }
+            });
+        }
+
+        const subjectForm = document.getElementById('subjectForm');
+        if (subjectForm) {
+            subjectForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const courseId = document.getElementById('subjectCourseId')?.value || '';
+                const nome = document.getElementById('subjectName')?.value?.trim() || '';
+                const codigo = document.getElementById('subjectCode')?.value?.trim() || '';
+                const professor = document.getElementById('subjectProfessor')?.value?.trim() || '';
+                const creditos = document.getElementById('subjectCredits')?.value || 0;
+
+                if (!courseId) {
+                    alert('Selecione um curso antes de guardar a disciplina.');
+                    return;
+                }
+
+                if (!nome) {
+                    alert('Introduza o nome da disciplina.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_URL}/courses/${courseId}/subjects`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ nome, codigo, professor, creditos })
+                    });
+
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(payload.error || 'Erro ao criar a disciplina.');
+                    }
+
+                    subjectForm.reset();
+                    showSuccess('Disciplina guardada com sucesso!');
+                    await loadCourseCatalog();
+                    await loadSubjectCatalog();
+                } catch (error) {
+                    console.error('Erro ao guardar disciplina:', error);
+                    alert(error.message || 'Não foi possível criar a disciplina.');
+                }
+            });
+        }
+
+        const studentCourseSelect = document.getElementById('studentCourse');
+        if (studentCourseSelect) {
+            studentCourseSelect.addEventListener('change', async () => {
+                const selectedCourseId = studentCourseSelect.value;
+                await loadCourseSubjectsForStudent(selectedCourseId);
+            });
+        }
+
+        const studentForm = document.getElementById('studentForm');
+        if (studentForm) {
+            studentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const nome = document.getElementById('studentName')?.value || '';
+                const email = document.getElementById('studentEmail')?.value || '';
+                const selectedCourseOption = document.getElementById('studentCourse')?.selectedOptions?.[0];
+                const curso = selectedCourseOption?.dataset?.name || document.getElementById('studentCourse')?.value || '';
+                const semestre = document.getElementById('studentSemester')?.value || '';
+                const trimestre = document.getElementById('studentTrimester')?.value || '';
+                const telefone = document.getElementById('studentPhone')?.value || '';
+                const disciplinas = Array.from(document.getElementById('studentSubjects')?.selectedOptions || []).map((option) => option.value);
+
+                if (!disciplinas.length) {
+                    alert('Selecione pelo menos uma disciplina para o estudante.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_URL}/students`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ nome, email, curso, semestre, trimestre, telefone, disciplinas })
+                    });
+
+                    if (response.ok) {
+                        showSuccess('Estudante criado com sucesso!');
+                        closeStudentModal();
+                        loadStudents();
+                    } else {
+                        alert('Erro ao criar estudante');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao criar estudante');
+                }
+            });
+        }
+
+        function logout() {
+            auth.clearSession();
+            localStorage.removeItem('studentToken');
+            window.location.href = 'login.html';
+        }
+
+        function showSection(sectionName) {
+            const normalized = sectionName || 'dashboard';
+            const sectionMap = {
+                dashboard: { id: 'dashboardSection', title: 'Dashboard Administrativo', loader: loadDashboard },
+                students: { id: 'studentsSection', title: 'Gerenciar Estudantes', loader: loadStudents },
+                catalog: { id: 'catalogSection', title: 'Cursos e Disciplinas', loader: () => { loadCourseCatalog(); loadSubjectCatalog(); } },
+                tasks: { id: 'tasksSection', title: 'Todas as Tarefas', loader: loadTasks },
+                export: { id: 'exportSection', title: 'Exportar Dados', loader: () => {} }
+            };
+
+            document.querySelectorAll('[id$="Section"]').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            document.querySelectorAll('.admin-menu a').forEach((anchor) => {
+                const isActive = anchor.getAttribute('href') === `#${normalized}`;
+                anchor.classList.toggle('active', isActive);
+            });
+
+            const selectedSection = sectionMap[normalized] || sectionMap.dashboard;
+            const sectionElement = document.getElementById(selectedSection.id);
+            if (sectionElement) {
+                sectionElement.style.display = 'block';
+            }
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle) {
+                pageTitle.textContent = selectedSection.title;
+            }
+            if (selectedSection.loader) selectedSection.loader();
+        }
+
+        // Navigation
+        document.querySelectorAll('.admin-menu a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.getAttribute('href').substring(1);
+                window.location.hash = section;
+                showSection(section);
+            });
+        });
+
+        window.addEventListener('hashchange', () => {
+            const hash = location.hash.replace('#', '') || 'dashboard';
+            showSection(hash);
+        });
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('studentModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Carregar dashboard ao iniciar
+        loadDashboard();
+        loadTasks();
+        loadCourseCatalog();
+        loadSubjectCatalog();
+        showSection(location.hash.replace('#', '') || 'dashboard');
+        setInterval(refreshAdminData, 15000);
+    </script>
+</body>
+</html>
